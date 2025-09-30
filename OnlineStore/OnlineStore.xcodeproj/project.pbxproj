@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B0DD0132E8C57B100F49ADC /* DesignPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 2B0DD0122E8C57B100F49ADC /* DesignPackage */; };
 		2B15C1252E8A6FBB0046DDCB /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2B15C1242E8A6FBB0046DDCB /* SnapKit */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +42,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2B15C1252E8A6FBB0046DDCB /* SnapKit in Frameworks */,
+				2B0DD0132E8C57B100F49ADC /* DesignPackage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +86,7 @@
 			name = OnlineStore;
 			packageProductDependencies = (
 				2B15C1242E8A6FBB0046DDCB /* SnapKit */,
+				2B0DD0122E8C57B100F49ADC /* DesignPackage */,
 			);
 			productName = OnlineStore;
 			productReference = 2B15C0DC2E8A65090046DDCB /* OnlineStore.app */;
@@ -115,6 +118,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				2B15C1232E8A6FBB0046DDCB /* XCRemoteSwiftPackageReference "SnapKit" */,
+				2B0DD0112E8C57B100F49ADC /* XCLocalSwiftPackageReference "../DesignPackage" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2B15C0DD2E8A65090046DDCB /* Products */;
@@ -343,6 +347,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		2B0DD0112E8C57B100F49ADC /* XCLocalSwiftPackageReference "../DesignPackage" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../DesignPackage;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		2B15C1232E8A6FBB0046DDCB /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -355,6 +366,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2B0DD0122E8C57B100F49ADC /* DesignPackage */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DesignPackage;
+		};
 		2B15C1242E8A6FBB0046DDCB /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2B15C1232E8A6FBB0046DDCB /* XCRemoteSwiftPackageReference "SnapKit" */;
