@@ -1,10 +1,3 @@
-//
-//  AppColors+Enam.swift
-//  OnlineStore
-//
-//  Created by Zaripov Anushervon  on 29/09/25.
-//
-
 import UIKit
 
 enum AppColors {
