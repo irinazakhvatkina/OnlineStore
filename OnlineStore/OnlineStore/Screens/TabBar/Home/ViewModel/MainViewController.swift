@@ -9,19 +9,16 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
     private let cartButton = CartButtonView(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
     private let addressView = AddressView(frame: CGRect(x: 0, y: 0, width: 200, height: 44))
     private var tapGesture: UITapGestureRecognizer!
+    private var selectedCategoryIndex: Int = 0
+    private let categories: [Category] = defaultCategories
+    private let allProducts: [Product] = defaultProducts
+
+    private var filteredProducts: [Product] {
+        guard categories.indices.contains(selectedCategoryIndex) else { return [] }
+        return allProducts.filter { $0.category == categories[selectedCategoryIndex].name }
+    }
     
     // MARK: - Collections
-
-    private let categories: [Category] = [
-        Category(name: "Clothes"),
-        Category(name: "Electronics"),
-        Category(name: "Sports"),
-        Category(name: "School"),
-        Category(name: "Category")
-
-    ]
-    
-    private var selectedCategoryIndex: Int = 0
     
     private lazy var categoriesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -38,6 +35,21 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         collectionView.register(CategoryCell.self, forCellWithReuseIdentifier: CategoryCell.identifier)
         return collectionView
     }()
+    
+    private lazy var productsCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 16
+        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.showsVerticalScrollIndicator = true
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.register(ProductCell.self, forCellWithReuseIdentifier: ProductCell.identifier)
+        return collectionView
+    }()
 
     // MARK: - Controllers
     
@@ -51,10 +63,14 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         setupNavigationBar()
         setupTapGestures()
         setupCategoriesCollectionView()
+        setupProductsCollectionView()
         
-        // первую категорию
-        categoriesCollectionView.selectItem(at: IndexPath(item: selectedCategoryIndex, section: 0), animated: false, scrollPosition: [])
+        categoriesCollectionView.reloadData()
+        productsCollectionView.reloadData()
 
+        if !categories.isEmpty {
+            categoriesCollectionView.selectItem(at: IndexPath(item: selectedCategoryIndex, section: 0), animated: false, scrollPosition: [])
+        }
     }
 
     // MARK: - Setup
@@ -118,7 +134,15 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
             make.height.equalTo(50)
         }
     }
+    
+    private func setupProductsCollectionView() {
+        view.addSubview(productsCollectionView)
 
+        productsCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(categoriesCollectionView.snp.bottom).offset(16)
+            make.leading.trailing.bottom.equalToSuperview()
+        }
+    }
 
     // MARK: - Actions
 
@@ -147,32 +171,88 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
     // MARK: - UICollectionView DataSource
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return categories.count
+        if collectionView == categoriesCollectionView {
+            return categories.count
+        } else {
+            return min(filteredProducts.count, 4)
+        }
     }
+
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCell.identifier, for: indexPath) as? CategoryCell else {
-            return UICollectionViewCell()
+        if collectionView == categoriesCollectionView {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCell.identifier, for: indexPath) as? CategoryCell else {
+                return UICollectionViewCell()
+            }
+            let category = categories[indexPath.item]
+            cell.configure(with: category)
+            cell.isSelected = (indexPath.item == selectedCategoryIndex)
+            return cell
+        } else {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCell.identifier, for: indexPath) as? ProductCell else {
+                return UICollectionViewCell()
+            }
+            let product = filteredProducts[indexPath.item]
+            cell.configure(with: product)
+            cell.onAddToCart = { [weak self] in
+                self?.addToCart(product)
+            }
+            return cell
         }
-        let category = categories[indexPath.item]
-        cell.configure(with: category)
-        cell.isSelected = (indexPath.item == selectedCategoryIndex) // Обновляем визуально выбранность
-        return cell
     }
     
     // MARK: - UICollectionView DelegateFlowLayout
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let category = categories[indexPath.item]
-        let font = UIFont(name: "Poppins-Medium", size: 14) ?? UIFont.systemFont(ofSize: 14, weight: .medium)
-        let width = category.name.size(withAttributes: [.font: font]).width + 24
-        return CGSize(width: width, height: 31)
+        if collectionView == categoriesCollectionView {
+            let category = categories[indexPath.item]
+            let font = UIFont(name: "Poppins-Medium", size: 14) ?? UIFont.systemFont(ofSize: 14, weight: .medium)
+            let width = category.name.size(withAttributes: [.font: font]).width + 24
+            return CGSize(width: width, height: 31)
+        } else {
+            let padding: CGFloat = 16 * 3 // левая + правая + межколоночный отступ
+            let availableWidth = collectionView.bounds.width - padding
+            let itemWidth = availableWidth / 2
+            let itemHeight = itemWidth * 1.2 // например, пропорция по высоте
+            return CGSize(width: itemWidth, height: itemHeight)
+        }
     }
+
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        selectedCategoryIndex = indexPath.item
-        collectionView.performBatchUpdates(nil)
-        collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
-        print("Выбрана категория: \(categories[selectedCategoryIndex].name)")
+        if collectionView == categoriesCollectionView {
+            selectedCategoryIndex = indexPath.item
+            categoriesCollectionView.performBatchUpdates(nil)
+            categoriesCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+            productsCollectionView.reloadData()
+            print("Выбрана категория: \(categories[selectedCategoryIndex].name)")
+        } else {
+            let product = filteredProducts[indexPath.item]
+            openProductDetails(product)
+        }
+    }
+    
+    // MARK: - Cart & Details
+    
+    private func addToCart(_ product: Product) {
+        print("Добавлено в корзину: \(product.name)")
+        // Тут можно обновить состояние корзины или счетчик
+    }
+
+    private func openProductDetails(_ product: Product) {
+        let detailVC = UIViewController()
+        detailVC.view.backgroundColor = .white
+        detailVC.title = product.name
+        
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.text = "\(product.name)\nЦена: $\(product.price)"
+        detailVC.view.addSubview(label)
+        label.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+        
+        navigationController?.pushViewController(detailVC, animated: true)
     }
 }
