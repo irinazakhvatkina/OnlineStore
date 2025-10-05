@@ -2,13 +2,42 @@ import UIKit
 import SnapKit
 import DesignPackage
 
-class MainViewController: UIViewController, DeliveryAddressDelegate {
+class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
     // MARK: - UI Components
 
     private let cartButton = CartButtonView(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
     private let addressView = AddressView(frame: CGRect(x: 0, y: 0, width: 200, height: 44))
     private var tapGesture: UITapGestureRecognizer!
+    
+    // MARK: - Collections
+
+    private let categories: [Category] = [
+        Category(name: "Clothes"),
+        Category(name: "Electronics"),
+        Category(name: "Sports"),
+        Category(name: "School"),
+        Category(name: "Category")
+
+    ]
+    
+    private var selectedCategoryIndex: Int = 0
+    
+    private lazy var categoriesCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 12
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.showsHorizontalScrollIndicator = true
+        collectionView.alwaysBounceHorizontal = true
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.register(CategoryCell.self, forCellWithReuseIdentifier: CategoryCell.identifier)
+        return collectionView
+    }()
 
     // MARK: - Controllers
     
@@ -21,6 +50,11 @@ class MainViewController: UIViewController, DeliveryAddressDelegate {
         view.backgroundColor = .white
         setupNavigationBar()
         setupTapGestures()
+        setupCategoriesCollectionView()
+        
+        // первую категорию
+        categoriesCollectionView.selectItem(at: IndexPath(item: selectedCategoryIndex, section: 0), animated: false, scrollPosition: [])
+
     }
 
     // MARK: - Setup
@@ -74,6 +108,17 @@ class MainViewController: UIViewController, DeliveryAddressDelegate {
             tabBar.addGestureRecognizer(tabBarTapGesture)
         }
     }
+    
+    private func setupCategoriesCollectionView() {
+        view.addSubview(categoriesCollectionView)
+        
+        categoriesCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(10)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(50)
+        }
+    }
+
 
     // MARK: - Actions
 
@@ -97,5 +142,37 @@ class MainViewController: UIViewController, DeliveryAddressDelegate {
     func didSelectCountry(country: CountryData) {
         addressView.dropdownButton.setTitle(country.name, for: .normal)
         print("Выбрана страна: \(country.name), валюта: \(country.currencyCode)")
+    }
+    
+    // MARK: - UICollectionView DataSource
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return categories.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCell.identifier, for: indexPath) as? CategoryCell else {
+            return UICollectionViewCell()
+        }
+        let category = categories[indexPath.item]
+        cell.configure(with: category)
+        cell.isSelected = (indexPath.item == selectedCategoryIndex) // Обновляем визуально выбранность
+        return cell
+    }
+    
+    // MARK: - UICollectionView DelegateFlowLayout
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let category = categories[indexPath.item]
+        let font = UIFont(name: "Poppins-Medium", size: 14) ?? UIFont.systemFont(ofSize: 14, weight: .medium)
+        let width = category.name.size(withAttributes: [.font: font]).width + 24
+        return CGSize(width: width, height: 31)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        selectedCategoryIndex = indexPath.item
+        collectionView.performBatchUpdates(nil)
+        collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+        print("Выбрана категория: \(categories[selectedCategoryIndex].name)")
     }
 }
