@@ -1,10 +1,3 @@
-//
-//  CustomTabBarController.swift
-//  OnlineStore
-//
-//  Created by Administration  on 29/09/25.
-//
-
 import UIKit
 import DesignPackage
 
@@ -53,6 +46,7 @@ class CustomTabBarController: UITabBarController {
 
         viewControllers = [hNav, wNav, mNav, sNav, aNav]
     }
+
 
     func addShadow() {
         tabBar.layer.shadowColor = UIColor.black.cgColor
