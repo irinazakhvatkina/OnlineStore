@@ -29,9 +29,10 @@ class AddressView: UIView {
         static let iconPointSize: CGFloat = 14
         static let titleColor: UIColor = .secondaryTitlesGrey
         static let buttonTextColor: UIColor = .mainTitlesDark
-        static let buttonIconColor: UIColor = .mainTitlesDark 
+        static let buttonIconColor: UIColor = .mainTitlesDark
         static let spacing: CGFloat = 2
         static let imageInset: CGFloat = 5
+        static let minTextWidthPadding: CGFloat = 30
     }
 
     // MARK: - Init
@@ -66,6 +67,13 @@ class AddressView: UIView {
             bottom: 0,
             right: -Constants.imageInset
         )
+        dropdownButton.contentHorizontalAlignment = .left
+        dropdownButton.titleLabel?.textAlignment = .left
+        
+        let minWidth = calculateMinWidthForDropdownText()
+        dropdownButton.snp.makeConstraints { make in
+            make.width.greaterThanOrEqualTo(minWidth)
+        }
 
         // Stack View
         stackView.axis = .vertical
@@ -79,6 +87,20 @@ class AddressView: UIView {
         stackView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+    }
+
+    // MARK: - Width Calculation
+
+    private func calculateMinWidthForDropdownText() -> CGFloat {
+        let font = UIFont.systemFont(ofSize: Constants.buttonFontSize)
+        let text = "Select delivery address" as NSString
+        let size = text.boundingRect(
+            with: CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude),
+            options: .usesLineFragmentOrigin,
+            attributes: [.font: font],
+            context: nil
+        ).size
+        return ceil(size.width) + Constants.minTextWidthPadding
     }
 
     // MARK: - Public Methods

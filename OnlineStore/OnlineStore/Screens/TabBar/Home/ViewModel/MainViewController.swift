@@ -12,14 +12,25 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
     private var selectedCategoryIndex: Int = 0
     private let categories: [Category] = defaultCategories
     private let allProducts: [Product] = defaultProducts
+    private let specialTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Special for you"
+        label.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
+        label.textColor = .black
+        return label
+    }()
+    private let specialView = SpecialForYouView()
+    
+    private let scrollView = UIScrollView()
+    private let contentStackView = UIStackView()
 
     private var filteredProducts: [Product] {
         guard categories.indices.contains(selectedCategoryIndex) else { return [] }
         return allProducts.filter { $0.category == categories[selectedCategoryIndex].name }
     }
-    
+
     // MARK: - Collections
-    
+
     private lazy var categoriesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -35,7 +46,7 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         collectionView.register(CategoryCell.self, forCellWithReuseIdentifier: CategoryCell.identifier)
         return collectionView
     }()
-    
+
     private lazy var productsCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -52,7 +63,7 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
     }()
 
     // MARK: - Controllers
-    
+
     private var deliveryAddressVC: DeliveryAddressViewController!
 
     // MARK: - Lifecycle
@@ -62,18 +73,19 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         view.backgroundColor = .white
         setupNavigationBar()
         setupTapGestures()
-        setupCategoriesCollectionView()
-        setupProductsCollectionView()
-        
+        setupScrollViewAndStackView()
+
         categoriesCollectionView.reloadData()
         productsCollectionView.reloadData()
 
         if !categories.isEmpty {
             categoriesCollectionView.selectItem(at: IndexPath(item: selectedCategoryIndex, section: 0), animated: false, scrollPosition: [])
         }
+        
+        updateProductsCollectionViewHeight()
     }
 
-    // MARK: - Setup
+    // MARK: - Setup Methods
 
     private func setupNavigationBar() {
         configureAddressView()
@@ -87,7 +99,7 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
     }
 
     private func configureCartButton() {
-        cartButton.updateCount(2)
+        cartButton.updateCount(3)
         cartButton.onTap = { [weak self] in
             guard let self = self else { return }
 
@@ -124,23 +136,64 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
             tabBar.addGestureRecognizer(tabBarTapGesture)
         }
     }
-    
-    private func setupCategoriesCollectionView() {
-        view.addSubview(categoriesCollectionView)
-        
+
+    private func setupScrollViewAndStackView() {
+        view.addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
+
+        scrollView.addSubview(contentStackView)
+        contentStackView.axis = .vertical
+        contentStackView.spacing = 10
+        contentStackView.alignment = .fill
+        contentStackView.distribution = .fill
+        contentStackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalTo(scrollView.snp.width)
+        }
+
+        contentStackView.addArrangedSubview(categoriesCollectionView)
         categoriesCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(10)
-            make.leading.trailing.equalToSuperview()
             make.height.equalTo(50)
         }
-    }
-    
-    private func setupProductsCollectionView() {
-        view.addSubview(productsCollectionView)
 
-        productsCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(categoriesCollectionView.snp.bottom).offset(16)
-            make.leading.trailing.bottom.equalToSuperview()
+        contentStackView.addArrangedSubview(productsCollectionView)
+
+        contentStackView.addArrangedSubview(specialTitleLabel)
+        specialTitleLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(20)
+            make.height.equalTo(24)
+        }
+
+        contentStackView.addArrangedSubview(specialView)
+        specialView.snp.makeConstraints { make in
+            make.height.equalTo(320)
+        }
+
+        specialView.configure(with: "https://akns-images.eonline.com/eol_images/Entire_Site/2022917/rs_1024x759-221017110819-1024-hm.jpg?fit=around%7C1024:759&output-quality=90&crop=1024:759;center,top")
+    }
+
+    private func updateProductsCollectionViewHeight() {
+        let itemsCount = min(filteredProducts.count, 4)
+        guard itemsCount > 0 else {
+            productsCollectionView.snp.updateConstraints { make in
+                make.height.equalTo(0)
+            }
+            return
+        }
+        
+        let layout = productsCollectionView.collectionViewLayout as! UICollectionViewFlowLayout
+        let padding: CGFloat = 16 * 3
+        let availableWidth = view.bounds.width - padding
+        let itemWidth = availableWidth / 2
+        let itemHeight = itemWidth * 1.2
+
+        let rows = CGFloat((itemsCount + 1) / 2) 
+        let height = rows * itemHeight + (rows - 1) * layout.minimumLineSpacing + layout.sectionInset.top + layout.sectionInset.bottom
+
+        productsCollectionView.snp.updateConstraints { make in
+            make.height.equalTo(height)
         }
     }
 
@@ -167,9 +220,9 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         addressView.dropdownButton.setTitle(country.name, for: .normal)
         print("Выбрана страна: \(country.name), валюта: \(country.currencyCode)")
     }
-    
+
     // MARK: - UICollectionView DataSource
-    
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == categoriesCollectionView {
             return categories.count
@@ -178,7 +231,6 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         }
     }
 
-    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == categoriesCollectionView {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCell.identifier, for: indexPath) as? CategoryCell else {
@@ -200,9 +252,9 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
             return cell
         }
     }
-    
+
     // MARK: - UICollectionView DelegateFlowLayout
-    
+
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == categoriesCollectionView {
             let category = categories[indexPath.item]
@@ -210,40 +262,40 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
             let width = category.name.size(withAttributes: [.font: font]).width + 24
             return CGSize(width: width, height: 31)
         } else {
-            let padding: CGFloat = 16 * 3 // левая + правая + межколоночный отступ
+            let padding: CGFloat = 16 * 3
             let availableWidth = collectionView.bounds.width - padding
             let itemWidth = availableWidth / 2
-            let itemHeight = itemWidth * 1.2 // например, пропорция по высоте
+            let itemHeight = itemWidth * 1.2
             return CGSize(width: itemWidth, height: itemHeight)
         }
     }
 
-    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == categoriesCollectionView {
             selectedCategoryIndex = indexPath.item
             categoriesCollectionView.performBatchUpdates(nil)
             categoriesCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
             productsCollectionView.reloadData()
+            updateProductsCollectionViewHeight()
             print("Выбрана категория: \(categories[selectedCategoryIndex].name)")
         } else {
             let product = filteredProducts[indexPath.item]
             openProductDetails(product)
         }
     }
-    
+
     // MARK: - Cart & Details
-    
+
     private func addToCart(_ product: Product) {
         print("Добавлено в корзину: \(product.name)")
-        // Тут можно обновить состояние корзины или счетчик
+        // Обновление счетчика или состояния корзины
     }
 
     private func openProductDetails(_ product: Product) {
         let detailVC = UIViewController()
         detailVC.view.backgroundColor = .white
         detailVC.title = product.name
-        
+
         let label = UILabel()
         label.numberOfLines = 0
         label.textAlignment = .center
@@ -252,7 +304,7 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         label.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
-        
+
         navigationController?.pushViewController(detailVC, animated: true)
     }
 }
