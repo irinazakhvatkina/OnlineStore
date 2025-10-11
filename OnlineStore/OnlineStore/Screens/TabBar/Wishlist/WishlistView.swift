@@ -1,10 +1,3 @@
-//
-//  WishlistView.swift
-//  OnlineStore
-//
-//  Created by Zaripov Anushervon  on 05/10/25.
-//
-
 import UIKit
 import SnapKit
 
