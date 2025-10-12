@@ -278,9 +278,21 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
             productsCollectionView.reloadData()
             updateProductsCollectionViewHeight()
             print("Выбрана категория: \(categories[selectedCategoryIndex].name)")
-        } else {
-            let product = filteredProducts[indexPath.item]
-            openProductDetails(product)
+        } else if collectionView == productsCollectionView {
+            let item = filteredProducts[indexPath.item]
+        
+            let product = ProductModel(
+                id: UUID().uuidString,
+                name: item.name,
+                price: item.price,
+                description: "Some product description",
+                imageUrl: "",
+                isFavorite: false
+            )
+            
+            let detailsVC = ProductDetailsVC()
+            detailsVC.product = product
+            navigationController?.pushViewController(detailsVC, animated: true)
         }
     }
 
