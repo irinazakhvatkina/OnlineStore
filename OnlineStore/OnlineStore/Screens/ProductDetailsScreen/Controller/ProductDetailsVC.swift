@@ -10,13 +10,18 @@ class ProductDetailsVC: UIViewController {
     
     private let mainView = ProductDetailsView()
     private var isLiked = false
+    var product: ProductModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Product details"
         view.backgroundColor = .white
         view = mainView
-        
+        let saved = CoreDataManager.shared.fetchProducts()
+        print("Сохранено \(saved.count) продуктов")
+        for _ in saved {
+           
+        }
         setupBackButton()
         setupRightButton()
         setupButtonTargets()
@@ -30,6 +35,18 @@ class ProductDetailsVC: UIViewController {
         isLiked.toggle()
         let imageName = isLiked ? "WishlistActive" : "WishlistInactive"
         mainView.returnHeartButton().setImage(UIImage(named: imageName), for: .normal)
+        
+        if isLiked {
+
+            CoreDataManager.shared.saveProduct(product ?? ProductModel(id: "22", name: "22", price: 22, description: "22", imageUrl: "", isFavorite: false))
+            print("Сохранено: \(String(describing: product?.name))")
+          } else {
+
+              if let id = product?.id {
+                  CoreDataManager.shared.deleteProduct(id: id)
+              }
+              print("Удалено: \(String(describing: product?.name))")
+          }
     }
     
     private func setupBackButton() {
