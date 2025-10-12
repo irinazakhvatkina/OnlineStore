@@ -16,6 +16,7 @@ struct WishlistItem {
 class WishlistViewController: UIViewController {
 
     private let mainView = WishlistView()
+    private let viewModel = WishlistViewModel()
     
     private var items: [WishlistItem] = [
          WishlistItem(name: "Earphones for monitor", price: "$1999"),
@@ -36,11 +37,22 @@ class WishlistViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupCollectionView()
+        if viewModel.returnCoreData().fetchProducts().isEmpty {
+                  viewModel.createMockData()
+              }
+
+            
+        viewModel.loadSavedProducts()
+        print(viewModel.products)
     }
+
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: true)
+        
+        viewModel.loadSavedProducts()
+        mainView.returnCollectionView().reloadData()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -58,7 +70,7 @@ class WishlistViewController: UIViewController {
 extension WishlistViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return items.count
+        return viewModel.products.count
     }
     
     func collectionView(_ collectionView: UICollectionView,
@@ -67,16 +79,16 @@ extension WishlistViewController: UICollectionViewDataSource, UICollectionViewDe
             return UICollectionViewCell()
         }
         
-        let item = items[indexPath.item]
-        cell.configure(with: item)
-        return cell
+        let product = viewModel.products[indexPath.item]
+              cell.configure(with: WishlistItem(name: product.name, price: "$\(product.price)"))
+              return cell
     }
     
-    // Размер ячейки
+
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let width = (collectionView.bounds.width - 16 - 12) / 2  // две колонки с отступами
+        let width = (collectionView.bounds.width - 16 - 12) / 2
         return CGSize(width: width, height: 220)
     }
 }
