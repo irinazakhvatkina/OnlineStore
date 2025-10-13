@@ -12,7 +12,7 @@ class WishlistView: UIView {
     }()
     
     // MARK: - SearchBar
-    private let searchBar: UISearchBar = {
+    public var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.backgroundImage = UIImage()
         searchBar.backgroundColor = .clear
@@ -103,4 +103,5 @@ class WishlistView: UIView {
     
     // MARK: - Public
     func returnCollectionView() -> UICollectionView { collectionView }
+
 }

@@ -8,6 +8,9 @@ class WishlistViewController: UIViewController {
     private var items: [Product] {
         return WishlistManager.shared.wishlistItems
     }
+    
+    private var filteredItems: [Product] = []
+    private var isSearching = false
 
     // MARK: - Lifecycle
 
@@ -20,8 +23,8 @@ class WishlistViewController: UIViewController {
         view.backgroundColor = .white
         setupCollectionView()
         updateWishlistUI()
-//        NotificationCenter.default.addObserver(self, selector: #selector(cartUpdated), name: .cartUpdated, object: nil)
-//        updateHeartButton()
+        mainView.searchBar.delegate = self
+
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -99,20 +102,45 @@ extension WishlistViewController: UICollectionViewDataSource, UICollectionViewDe
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return items.count
+        return isSearching ? filteredItems.count : items.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "WishlistCell", for: indexPath) as? WishlistCell else {
             return UICollectionViewCell()
         }
-        let item = items[indexPath.item]
-        cell.configure(with: item)
+        let item = isSearching ? filteredItems[indexPath.item] : items[indexPath.item]
+        configureCell(cell, for: item)
         return cell
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = (collectionView.bounds.width - 16 - 12) / 2
         return CGSize(width: width, height: 220)
+    }
+}
+
+extension WishlistViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        let lowercasedQuery = searchText.lowercased()
+
+        if lowercasedQuery.isEmpty {
+            isSearching = false
+            filteredItems.removeAll()
+        } else {
+            isSearching = true
+            filteredItems = items.filter { product in
+                product.title.lowercased().contains(lowercasedQuery)
+            }
+        }
+
+        mainView.returnCollectionView().reloadData()
+    }
+
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        isSearching = false
+        filteredItems.removeAll()
+        searchBar.text = ""
+        mainView.returnCollectionView().reloadData()
     }
 }

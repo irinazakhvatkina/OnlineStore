@@ -7,7 +7,6 @@ public final class APIManager {
     func fetchData<T: Decodable>(endpoint: Endpoint, type: T.Type) async throws -> T {
         let (data, _) = try await URLSession.shared.data(from: endpoint.url)
 
-        // ✅ Печатаем JSON как строку
         if let json = String(data: data, encoding: .utf8) {
             print("✅ Полученный JSON:\n\(json)")
         }
