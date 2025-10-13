@@ -95,7 +95,7 @@ class AccountViewController: UIViewController {
     
     // MARK: - Setup
     private func setupUI() {
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = .systemGray
         
         // Add scroll view and content view
         view.addSubview(scrollView)
