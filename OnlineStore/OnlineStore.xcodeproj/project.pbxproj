@@ -7,14 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2B0DD0132E8C57B100F49ADC /* DesignPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 2B0DD0122E8C57B100F49ADC /* DesignPackage */; };
-		2B15C1252E8A6FBB0046DDCB /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2B15C1242E8A6FBB0046DDCB /* SnapKit */; };
+		2B1976632E9EB4BA006EBB8C /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 2B1976622E9EB4BA006EBB8C /* SDWebImage */; };
+		2B1976652E9EB4C0006EBB8C /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2B1976642E9EB4C0006EBB8C /* SnapKit */; };
+		2B1976672E9EB4C5006EBB8C /* DesignPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 2B1976662E9EB4C5006EBB8C /* DesignPackage */; };
 		2B5ECE472E9131D4000C72D4 /* CartButtonKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B5ECE3F2E9131D4000C72D4 /* CartButtonKit.framework */; };
 		2B5ECE482E9131D4000C72D4 /* CartButtonKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2B5ECE3F2E9131D4000C72D4 /* CartButtonKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2B5ECEAB2E92570F000C72D4 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2B5ECEAA2E92570F000C72D4 /* SnapKit */; };
 		2B5ECEAD2E925713000C72D4 /* DesignPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 2B5ECEAC2E925713000C72D4 /* DesignPackage */; };
-		EE5358662EA4F0BF009FECE3 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = EE5358652EA4F0BF009FECE3 /* SDWebImage */; };
-		EE5358682EA4F0BF009FECE3 /* SDWebImageMapKit in Frameworks */ = {isa = PBXBuildFile; productRef = EE5358672EA4F0BF009FECE3 /* SDWebImageMapKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,11 +71,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B1976652E9EB4C0006EBB8C /* SnapKit in Frameworks */,
+				2B1976632E9EB4BA006EBB8C /* SDWebImage in Frameworks */,
 				2B5ECE472E9131D4000C72D4 /* CartButtonKit.framework in Frameworks */,
-				EE5358682EA4F0BF009FECE3 /* SDWebImageMapKit in Frameworks */,
-				2B15C1252E8A6FBB0046DDCB /* SnapKit in Frameworks */,
-				EE5358662EA4F0BF009FECE3 /* SDWebImage in Frameworks */,
-				2B0DD0132E8C57B100F49ADC /* DesignPackage in Frameworks */,
+				2B1976672E9EB4C5006EBB8C /* DesignPackage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,6 +94,7 @@
 			isa = PBXGroup;
 			children = (
 				2B15C0DE2E8A65090046DDCB /* OnlineStore */,
+				2B1976612E9EB4BA006EBB8C /* Frameworks */,
 				2B15C0DD2E8A65090046DDCB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -107,6 +106,13 @@
 				2B5ECE3F2E9131D4000C72D4 /* CartButtonKit.framework */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		2B1976612E9EB4BA006EBB8C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -141,10 +147,9 @@
 			);
 			name = OnlineStore;
 			packageProductDependencies = (
-				2B15C1242E8A6FBB0046DDCB /* SnapKit */,
-				2B0DD0122E8C57B100F49ADC /* DesignPackage */,
-				EE5358652EA4F0BF009FECE3 /* SDWebImage */,
-				EE5358672EA4F0BF009FECE3 /* SDWebImageMapKit */,
+				2B1976622E9EB4BA006EBB8C /* SDWebImage */,
+				2B1976642E9EB4C0006EBB8C /* SnapKit */,
+				2B1976662E9EB4C5006EBB8C /* DesignPackage */,
 			);
 			productName = OnlineStore;
 			productReference = 2B15C0DC2E8A65090046DDCB /* OnlineStore.app */;
@@ -202,7 +207,7 @@
 			packageReferences = (
 				2B15C1232E8A6FBB0046DDCB /* XCRemoteSwiftPackageReference "SnapKit" */,
 				2B0DD0112E8C57B100F49ADC /* XCLocalSwiftPackageReference "../DesignPackage" */,
-				EE5358642EA4F0BF009FECE3 /* XCRemoteSwiftPackageReference "SDWebImage" */,
+				2B1976602E9EB3A7006EBB8C /* XCRemoteSwiftPackageReference "SDWebImage" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2B15C0DD2E8A65090046DDCB /* Products */;
@@ -265,14 +270,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 3F595P467F;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OnlineStore/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -280,9 +285,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = i.OnlineStore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -293,14 +302,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 3F595P467F;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OnlineStore/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -308,9 +317,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = i.OnlineStore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -458,11 +471,15 @@
 				PRODUCT_BUNDLE_IDENTIFIER = i.CartButtonKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INSTALL_MODULE = YES;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -493,11 +510,15 @@
 				PRODUCT_BUNDLE_IDENTIFIER = i.CartButtonKit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INSTALL_MODULE = YES;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -551,7 +572,7 @@
 				minimumVersion = 5.7.1;
 			};
 		};
-		EE5358642EA4F0BF009FECE3 /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+		2B1976602E9EB3A7006EBB8C /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
 			requirement = {
@@ -562,14 +583,20 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		2B0DD0122E8C57B100F49ADC /* DesignPackage */ = {
+		2B1976622E9EB4BA006EBB8C /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = DesignPackage;
+			package = 2B1976602E9EB3A7006EBB8C /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
 		};
-		2B15C1242E8A6FBB0046DDCB /* SnapKit */ = {
+		2B1976642E9EB4C0006EBB8C /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2B15C1232E8A6FBB0046DDCB /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		2B1976662E9EB4C5006EBB8C /* DesignPackage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2B0DD0112E8C57B100F49ADC /* XCLocalSwiftPackageReference "../DesignPackage" */;
+			productName = DesignPackage;
 		};
 		2B5ECEAA2E92570F000C72D4 /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -580,16 +607,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2B0DD0112E8C57B100F49ADC /* XCLocalSwiftPackageReference "../DesignPackage" */;
 			productName = DesignPackage;
-		};
-		EE5358652EA4F0BF009FECE3 /* SDWebImage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EE5358642EA4F0BF009FECE3 /* XCRemoteSwiftPackageReference "SDWebImage" */;
-			productName = SDWebImage;
-		};
-		EE5358672EA4F0BF009FECE3 /* SDWebImageMapKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EE5358642EA4F0BF009FECE3 /* XCRemoteSwiftPackageReference "SDWebImage" */;
-			productName = SDWebImageMapKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
