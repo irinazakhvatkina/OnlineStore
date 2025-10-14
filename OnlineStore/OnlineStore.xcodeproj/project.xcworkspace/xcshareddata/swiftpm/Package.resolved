@@ -1,6 +1,15 @@
 {
-  "originHash" : "4cdad746817ac9ed37e44dbe90a2ff25fc018954899b7d513e41a4bfc70f065a",
+  "originHash" : "eecdbc93539264e563f5c95c41dfc3e59e4c67b8a51158bfea5b74182eb73e06",
   "pins" : [
+    {
+      "identity" : "sdwebimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImage.git",
+      "state" : {
+        "revision" : "2053b120767c42a70bcba21095f34e4cfb54a75d",
+        "version" : "5.21.3"
+      }
+    },
     {
       "identity" : "snapkit",
       "kind" : "remoteSourceControl",
