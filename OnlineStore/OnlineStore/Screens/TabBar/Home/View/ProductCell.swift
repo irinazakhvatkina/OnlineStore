@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import DesignPackage
 
 class ProductCell: UICollectionViewCell {
     static let identifier = "ProductCell"
@@ -35,22 +36,22 @@ class ProductCell: UICollectionViewCell {
         containerView.addSubview(imageView)
 
         // title
-        nameLabel.font = UIFont.systemFont(ofSize: 12, weight: .regular)
+        nameLabel.font = UIFont(name: FontNames.regular_18pt, size: 16)
         nameLabel.numberOfLines = 1
         containerView.addSubview(nameLabel)
 
         // price
-        priceLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        priceLabel.font = UIFont(name: FontNames.regular_18pt, size: 14)
         priceLabel.textColor = .darkGray
         containerView.addSubview(priceLabel)
 
         // button "Add to cart"
         addToCartButton.setTitle("Add to cart", for: .normal)
-        addToCartButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        addToCartButton.titleLabel?.font = UIFont(name: FontNames.medium_18pt, size: 16)
         addToCartButton.backgroundColor = UIColor(red: 37/255, green: 99/255, blue: 235/255, alpha: 1)
         addToCartButton.tintColor = .white
         addToCartButton.layer.cornerRadius = 8
-        addToCartButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 30, bottom: 8, right: 30)
+        addToCartButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 20, bottom: 8, right: 20)
         addToCartButton.addTarget(self, action: #selector(addToCartTapped), for: .touchUpInside)
         containerView.addSubview(addToCartButton)
 
@@ -90,12 +91,39 @@ class ProductCell: UICollectionViewCell {
 
     @objc private func addToCartTapped() {
         onAddToCart?()
+        let originalTitle = addToCartButton.title(for: .normal)
+        addToCartButton.setTitle("Added", for: .normal)
+        
+        UIView.animate(withDuration: 0.3, delay: 1.0, options: .curveEaseInOut, animations: {
+            self.addToCartButton.setTitle(originalTitle, for: .normal)
+        })
     }
 
-    func configure(with product: Product) {
-        imageView.image = UIImage(named: product.imageName)
-        nameLabel.text = product.name
+    func configure(with product: Product, isProductInCart: Bool) {
+        nameLabel.text = product.title
         priceLabel.text = String(format: "$%.2f", product.price)
+
+        imageView.image = nil
+
+        if let firstImageURLString = product.images.first,
+           let url = URL(string: firstImageURLString) {
+            ImageLoader.shared.loadImage(from: url) { [weak self] image in
+                guard let self = self else { return }
+                self.imageView.image = image ?? UIImage(named: "placeholder")
+            }
+        } else {
+            imageView.image = UIImage(named: "placeholder")
+        }
+
+        if isProductInCart {
+            addToCartButton.setTitle("In Cart", for: .normal)
+            addToCartButton.backgroundColor = UIColor.gray
+            addToCartButton.isUserInteractionEnabled = false
+        } else {
+            addToCartButton.setTitle("Add to Cart", for: .normal)
+            addToCartButton.backgroundColor = UIColor(red: 37/255, green: 99/255, blue: 235/255, alpha: 1)
+            addToCartButton.isUserInteractionEnabled = true
+        }
     }
 
     required init?(coder: NSCoder) {

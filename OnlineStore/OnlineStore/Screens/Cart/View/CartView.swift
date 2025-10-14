@@ -1,16 +1,9 @@
-//
-//  CartView.swift
-//  OnlineStore
-//
-//  Created by Zaripov Anushervon  on 05/10/25.
-//
-
 import UIKit
 import SnapKit
 
 class CartView: UIView {
     
-    // MARK: - UI
+    // MARK: - UI Elements
     
     let deliveryLabel: UILabel = {
         let label = UILabel()
@@ -37,7 +30,7 @@ class CartView: UIView {
         let table = UITableView()
         table.separatorStyle = .none
         table.backgroundColor = .clear
-        table.clipsToBounds = false // ✅ вот это!
+        table.clipsToBounds = false
         return table
     }()
 
@@ -59,7 +52,7 @@ class CartView: UIView {
     
     let totalPriceLabel: UILabel = {
         let label = UILabel()
-        label.text = "$ 1299,00"
+        label.text = "$ 1299.00"
         label.font = .systemFont(ofSize: 16, weight: .bold)
         return label
     }()
@@ -98,6 +91,10 @@ class CartView: UIView {
         bottomSummaryView.addSubview(totalLabel)
         bottomSummaryView.addSubview(totalPriceLabel)
         bottomSummaryView.addSubview(paymentButton)
+        
+        // Configure table view
+        tableView.delegate = self
+        tableView.dataSource = self
     }
     
     private func setupConstraints() {
@@ -148,5 +145,35 @@ class CartView: UIView {
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(48)
         }
+    }
+    
+    // MARK: - Public Methods
+
+    func updateItems(_ items: [CartItem]) {
+        tableView.reloadData()
+    }
+
+    func updateTotalPrice(_ price: String) {
+        totalPriceLabel.text = price
+    }
+}
+
+extension CartView: UITableViewDelegate, UITableViewDataSource {
+    
+    // MARK: - UITableViewDataSource
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 0
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CartTableViewCell", for: indexPath)
+        return cell
+    }
+
+    // MARK: - UITableViewDelegate
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 120
     }
 }

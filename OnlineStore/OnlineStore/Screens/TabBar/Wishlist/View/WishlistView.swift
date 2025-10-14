@@ -1,10 +1,3 @@
-//
-//  WishlistView.swift
-//  OnlineStore
-//
-//  Created by Zaripov Anushervon  on 05/10/25.
-//
-
 import UIKit
 import SnapKit
 
@@ -19,7 +12,7 @@ class WishlistView: UIView {
     }()
     
     // MARK: - SearchBar
-    private let searchBar: UISearchBar = {
+    public var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.backgroundImage = UIImage()
         searchBar.backgroundColor = .clear
@@ -110,4 +103,5 @@ class WishlistView: UIView {
     
     // MARK: - Public
     func returnCollectionView() -> UICollectionView { collectionView }
+
 }

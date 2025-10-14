@@ -1,23 +1,11 @@
-//
-//  CartTableViewCell.swift
-//  OnlineStore
-//
-//  Created by Zaripov Anushervon  on 05/10/25.
-//
-
 import UIKit
 import SnapKit
+import SDWebImage
 
 protocol CartTableViewCellDelegate: AnyObject {
     func didTapPlus(in cell: CartTableViewCell)
     func didTapMinus(in cell: CartTableViewCell)
-}
-
-struct CartItem {
-    let title: String
-    let variant: String
-    let price: String
-    var quantity: Int
+    func didToggleCheckbox(in cell: CartTableViewCell, isSelected: Bool)
 }
 
 class CartTableViewCell: UITableViewCell {
@@ -40,7 +28,6 @@ class CartTableViewCell: UITableViewCell {
     
     private let productImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "imgslider")
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 8
         imageView.layer.masksToBounds = true
@@ -49,14 +36,12 @@ class CartTableViewCell: UITableViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "MacBook Pro M4"
         label.font = .systemFont(ofSize: 14, weight: .semibold)
         return label
     }()
     
     private let variantLabel: UILabel = {
         let label = UILabel()
-        label.text = "Variant: Grey"
         label.font = .systemFont(ofSize: 12)
         label.textColor = .gray
         return label
@@ -64,14 +49,12 @@ class CartTableViewCell: UITableViewCell {
     
     private let priceLabel: UILabel = {
         let label = UILabel()
-        label.text = "$1299,00"
         label.font = .systemFont(ofSize: 14, weight: .bold)
         return label
     }()
     
     private let quantityLabel: UILabel = {
         let label = UILabel()
-        label.text = "1"
         label.font = .systemFont(ofSize: 14)
         return label
     }()
@@ -98,7 +81,6 @@ class CartTableViewCell: UITableViewCell {
         return button
     }()
     
-    // MARK: - Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = .clear
@@ -125,9 +107,9 @@ class CartTableViewCell: UITableViewCell {
     
     @objc private func checkboxTapped() {
         checkboxButton.isSelected.toggle()
+        delegate?.didToggleCheckbox(in: self, isSelected: checkboxButton.isSelected)
     }
     
-
     @objc private func plusTapped() {
         delegate?.didTapPlus(in: self)
     }
@@ -136,7 +118,6 @@ class CartTableViewCell: UITableViewCell {
         delegate?.didTapMinus(in: self)
     }
     
-    // MARK: - Setup
     private func setupSubviews() {
         contentView.addSubview(containerView)
         containerView.addSubview(checkboxButton)
@@ -206,7 +187,6 @@ class CartTableViewCell: UITableViewCell {
                 cornerRadius: self.containerView.layer.cornerRadius
             ).cgPath
         }
-
     }
     
     func configure(with item: CartItem) {
@@ -214,7 +194,16 @@ class CartTableViewCell: UITableViewCell {
         variantLabel.text = "Variant: \(item.variant)"
         priceLabel.text = item.price
         quantityLabel.text = "\(item.quantity)"
+        
+        if let imageURLString = item.product.images.first,
+            let url = URL(string: imageURLString) {
+            productImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholderImage"))
+        } else {
+            productImageView.image = UIImage(named: "placeholderImage")
+        }
     }
 
-    
+    func setSelectedCheckbox(_ selected: Bool) {
+        checkboxButton.isSelected = selected
+    }
 }

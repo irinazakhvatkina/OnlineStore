@@ -1,12 +1,10 @@
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
+    
     var window: UIWindow?
-
-    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {        
-        guard let windowScene = (scene as? UIWindowScene) else { return }
-            window = UIWindow(windowScene: windowScene)
+    
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
             let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
             let rootViewController: UIViewController
             if hasCompletedOnboarding {
@@ -14,9 +12,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             } else {
                 rootViewController = OnboardingViewController()
             }
+            guard let windowScene = (scene as? UIWindowScene) else { return }
+            window = UIWindow(windowScene: windowScene)
             window?.rootViewController = rootViewController
             window?.makeKeyAndVisible()
-    }
+        }
 
     func sceneDidDisconnect(_ scene: UIScene) {}
 

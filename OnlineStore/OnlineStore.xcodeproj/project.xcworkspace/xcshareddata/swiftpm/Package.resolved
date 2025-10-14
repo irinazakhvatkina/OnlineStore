@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "originHash" : "eecdbc93539264e563f5c95c41dfc3e59e4c67b8a51158bfea5b74182eb73e06",
+=======
+  "originHash" : "7ce4d98a2d6e3222f2ba3f34a552c7cf31d35ed776c7eb5ac8fc6e9a117e0239",
+>>>>>>> feature/networking
   "pins" : [
     {
       "identity" : "sdwebimage",

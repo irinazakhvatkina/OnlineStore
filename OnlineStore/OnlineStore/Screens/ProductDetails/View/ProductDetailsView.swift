@@ -1,53 +1,41 @@
-//
-//  ProductDetailsView.swift
-//  OnlineStore
-//
-//  Created by Zaripov Anushervon  on 02/10/25.
-//
-
 import UIKit
 import DesignPackage
 import SnapKit
 
 class ProductDetailsView: UIView {
-    
+
+    // MARK: - UI Components
+
     private let mainScrollView: UIScrollView = {
         let scroll = UIScrollView()
         scroll.showsVerticalScrollIndicator = false
         scroll.alwaysBounceVertical = true
-        scroll.contentInset = UIEdgeInsets(
-            top: 0,
-            left: 0,
-            bottom: 102,
-            right: 0
-        )
-
+        scroll.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 102, right: 0)
         return scroll
     }()
     
-    private let containerView: UIView = {
-        let view = UIView()
-        return view
-    }()
-    
+    private let containerView = UIView()
+
     private let mainStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.spacing = 4
+        stack.spacing = 12
         return stack
     }()
     
     private let mainImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
-        iv.image = UIImage(named: "imgslider")
+        iv.clipsToBounds = true
+        iv.layer.cornerRadius = 16
         return iv
     }()
+
     
     private let textStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.spacing = 4
+        stack.spacing = 12
         return stack
     }()
     
@@ -78,16 +66,13 @@ class ProductDetailsView: UIView {
         return label
     }()
     
-    private let spacerView: UIView = {
-        let spacer = UIView()
-        return spacer
-    }()
+    private let spacerView = UIView()
     
     private let heartButton: UIButton = {
-        let iv = UIButton()
-        iv.contentMode = .scaleAspectFit
-        iv.setImage(UIImage(named: "WishlistInactive"), for: .normal)
-        return iv
+        let button = UIButton()
+        button.contentMode = .scaleAspectFill
+        button.setImage(UIImage(named: "WishlistInactive"), for: .normal)
+        return button
     }()
     
     private let productDescriptionLabel: UILabel = {
@@ -100,28 +85,7 @@ class ProductDetailsView: UIView {
     private let productTextLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.text = """
-"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquet arcu id tincidunt tellus arcu rhoncus, turpis nisl sed. Neque viverra ipsum orci, morbi semper. Nulla bibendum purus tempor semper purus. Ut curabitur platea sed blandit. Amet non at proin justo nulla et. A, blandit morbi suspendisse vel malesuada purus massa mi. Faucibus neque a mi hendrerit.
-        
-    Audio Technology
-    Apple-designed dynamic driver
-    Active Noise Cancellation
-    Transparency mode
-    Adaptive EQ
-    Spatial audio with dynamic head tracking1
-    Sensors
-    Optical sensor (each ear cup)
-    Position sensor (each ear cup)
-    Case-detect sensor (each ear cup)
-    Accelerometer (each ear cup)
-    Gyroscope (left ear cup)
-    Microphones
-    Nine microphones total:
-    Eight microphones for Active Noise Cancellation
-    Three microphones for voice pickup (two shared with Active Noise Cancellation and oneadditional microphone)
-    Chip
-    Apple H1 headphone chip (each ear cup)
-"""
+        label.text = "Product description goes here..."
         return label
     }()
     
@@ -150,68 +114,79 @@ class ProductDetailsView: UIView {
     
     private let addToCardButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = #colorLiteral(red: 0.9393998981, green: 0.9493477941, blue: 0.944865644, alpha: 1)
-        button.setTitle("Add to Card", for: .normal)
+        button.backgroundColor = UIColor(red: 0.94, green: 0.95, blue: 0.94, alpha: 1)
+        button.setTitle("Add to Cart", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.layer.cornerRadius = 8
         button.layer.borderWidth = 1
-        button.layer.borderColor = #colorLiteral(red: 0.850980401, green: 0.850980401, blue: 0.850980401, alpha: 1)
+        button.layer.borderColor = UIColor.lightGray.cgColor
         return button
     }()
-    
+
+    // MARK: - Initializer
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = #colorLiteral(red: 0.9725490212, green: 0.9725490212, blue: 0.9725490212, alpha: 1)
+        backgroundColor = UIColor(white: 0.97, alpha: 1)
         setupSubviews()
         setupConstraints()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    // MARK: - Setup UI
+
     private func setupSubviews() {
         addSubview(mainScrollView)
         mainScrollView.addSubview(containerView)
         containerView.addSubview(mainStackView)
+
         mainStackView.addArrangedSubview(mainImageView)
-       
         mainStackView.addArrangedSubview(textStackView)
+
         textStackView.addArrangedSubview(combineStackView)
         combineStackView.addArrangedSubview(importantInfoStackView)
-        importantInfoStackView.addArrangedSubview(productTitleLabel)
-        importantInfoStackView.addArrangedSubview(productPriceLabel)
         combineStackView.addArrangedSubview(spacerView)
         combineStackView.addArrangedSubview(heartButton)
+
+        importantInfoStackView.addArrangedSubview(productTitleLabel)
+        importantInfoStackView.addArrangedSubview(productPriceLabel)
+
         textStackView.addArrangedSubview(productDescriptionLabel)
         textStackView.addArrangedSubview(productTextLabel)
+
         addSubview(buttonContainerView)
         buttonContainerView.addSubview(buttonStackView)
-        
         buttonStackView.addArrangedSubview(buyNowButton)
         buttonStackView.addArrangedSubview(addToCardButton)
-        
     }
-    
+
     private func setupConstraints() {
-        
         mainScrollView.snp.makeConstraints { make in
             make.edges.equalTo(safeAreaLayoutGuide)
         }
-        
+
         containerView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
             make.width.equalToSuperview()
         }
-        
+
         mainStackView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        
+
+        mainImageView.snp.makeConstraints { make in
+            make.height.equalTo(300)
+            make.centerX.equalToSuperview()
+        }
+
+
         textStackView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
         }
-        
+
         buttonContainerView.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
         }
@@ -222,15 +197,51 @@ class ProductDetailsView: UIView {
             make.bottom.equalToSuperview().inset(14)
         }
 
-        
         buyNowButton.snp.makeConstraints { make in
             make.height.equalTo(45)
         }
-        
+
         addToCardButton.snp.makeConstraints { make in
             make.height.equalTo(45)
         }
     }
+
+    // MARK: - Public Methods
+
+    func configure(with product: Product) {
+        productTitleLabel.text = product.title
+        productPriceLabel.text = "$\(String(format: "%.2f", product.price))"
+        productDescriptionLabel.text = "Description of product"
+        productTextLabel.text = product.description
+
+        if let firstImageURL = product.images.first,
+           let url = URL(string: firstImageURL) {
+            ImageLoader.shared.loadImage(from: url) { [weak self] image in
+                DispatchQueue.main.async {
+                    self?.mainImageView.image = image ?? UIImage(named: "placeholder")
+                }
+            }
+        } else {
+            mainImageView.image = UIImage(named: "placeholder")
+        }
+    }
     
-    func returnHeartButton() -> UIButton {heartButton}
+    // MARK: - Update Heart Button
+    func updateHeartButtonState(for product: Product) {
+        let isLiked = WishlistManager.shared.isProductInWishlist(product)
+        heartButton.setImage(UIImage(named: isLiked ? "WishlistActive" : "WishlistInactive"), for: .normal)
+    }
+
+
+    func returnHeartButton() -> UIButton {
+        return heartButton
+    }
+
+    func returnBuyNowButton() -> UIButton {
+        return buyNowButton
+    }
+
+    func returnAddToCartButton() -> UIButton {
+        return addToCardButton
+    }
 }

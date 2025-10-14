@@ -10,12 +10,12 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
     private let addressView = AddressView(frame: CGRect(x: 0, y: 0, width: 200, height: 44))
     private var tapGesture: UITapGestureRecognizer!
     private var selectedCategoryIndex: Int = 0
-    private let categories: [Category] = defaultCategories
-    private let allProducts: [Product] = defaultProducts
+    private var categories: [Category] = []
+    private var allProducts: [Product] = []
     private let specialTitleLabel: UILabel = {
         let label = UILabel()
         label.text = "Special for you"
-        label.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
+        label.font = UIFont(name: FontNames.medium_24pt, size: 20)
         label.textColor = .black
         return label
     }()
@@ -26,7 +26,8 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
 
     private var filteredProducts: [Product] {
         guard categories.indices.contains(selectedCategoryIndex) else { return [] }
-        return allProducts.filter { $0.category == categories[selectedCategoryIndex].name }
+        let selectedCategoryName = categories[selectedCategoryIndex].name
+        return allProducts.filter { $0.category.name == selectedCategoryName }
     }
 
     // MARK: - Collections
@@ -39,7 +40,7 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
 
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
-        collectionView.showsHorizontalScrollIndicator = true
+        collectionView.showsHorizontalScrollIndicator = false
         collectionView.alwaysBounceHorizontal = true
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -74,6 +75,7 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         setupNavigationBar()
         setupTapGestures()
         setupScrollViewAndStackView()
+        fetchDataFromAPI()
 
         categoriesCollectionView.reloadData()
         productsCollectionView.reloadData()
@@ -83,6 +85,7 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         }
         
         updateProductsCollectionViewHeight()
+        NotificationCenter.default.addObserver(self, selector: #selector(cartUpdated), name: .cartUpdated, object: nil)
     }
 
     // MARK: - Setup Methods
@@ -99,7 +102,8 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
     }
 
     private func configureCartButton() {
-        cartButton.updateCount(3)
+        let itemsCount = CartManager.shared.itemsCount
+        cartButton.updateCount(itemsCount)
         cartButton.onTap = { [weak self] in
             guard let self = self else { return }
 
@@ -107,13 +111,14 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
                 self.deliveryAddressVC.hideDropdown(animated: true)
             }
 
-            let cartVC = UIViewController()
+            let cartVC = CartViewController()
             cartVC.view.backgroundColor = .white
             cartVC.title = "Cart"
             self.navigationController?.pushViewController(cartVC, animated: true)
         }
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: cartButton)
     }
+
 
     private func configureDeliveryAddressVC() {
         deliveryAddressVC = DeliveryAddressViewController(anchorView: addressView.dropdownButton)
@@ -197,6 +202,34 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         }
     }
 
+    private func fetchDataFromAPI() {
+        Task {
+            do {
+                // Загружаем продукты и категории
+                let products: [Product] = try await APIManager.shared.fetchData(endpoint: .products, type: [Product].self)
+                let categories: [Category] = try await APIManager.shared.fetchData(endpoint: .categories, type: [Category].self)
+
+                // Обновляем UI на главном потоке
+                DispatchQueue.main.async {
+                    self.allProducts = products
+                    self.categories = categories
+
+                    self.selectedCategoryIndex = 0
+                    self.categoriesCollectionView.reloadData()
+                    self.productsCollectionView.reloadData()
+                    
+                    if !self.categories.isEmpty {
+                        self.categoriesCollectionView.selectItem(at: IndexPath(item: self.selectedCategoryIndex, section: 0), animated: false, scrollPosition: [])
+                    }
+
+                    self.updateProductsCollectionViewHeight()
+                }
+            } catch {
+                print("❌ Ошибка при загрузке данных: \(error.localizedDescription)")
+            }
+        }
+    }
+
     // MARK: - Actions
 
     @objc private func didTapAddressButton() {
@@ -213,6 +246,18 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
             deliveryAddressVC.hideDropdown(animated: true)
         }
     }
+    
+    @objc private func cartUpdated() {
+        let itemsCount = CartManager.shared.itemsCount
+        cartButton.updateCount(itemsCount)
+        productsCollectionView.reloadData()
+
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .cartUpdated, object: nil)
+    }
+
 
     // MARK: - DeliveryAddressDelegate
 
@@ -245,13 +290,19 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
                 return UICollectionViewCell()
             }
             let product = filteredProducts[indexPath.item]
-            cell.configure(with: product)
+            let isProductInCart = CartManager.shared.contains(product)
+            
+            cell.configure(with: product, isProductInCart: isProductInCart)
+
             cell.onAddToCart = { [weak self] in
                 self?.addToCart(product)
+                cell.configure(with: product, isProductInCart: true)
             }
+            
             return cell
         }
     }
+
 
     // MARK: - UICollectionView DelegateFlowLayout
 
@@ -280,18 +331,7 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
             print("Выбрана категория: \(categories[selectedCategoryIndex].name)")
         } else if collectionView == productsCollectionView {
             let item = filteredProducts[indexPath.item]
-        
-            let product = ProductModel(
-                id: UUID().uuidString,
-                name: item.name,
-                price: item.price,
-                description: "Some product description",
-                imageUrl: "",
-                isFavorite: false
-            )
-            
-            let detailsVC = ProductDetailsVC()
-            detailsVC.product = product
+            let detailsVC = ProductDetailsVC(product: item)
             navigationController?.pushViewController(detailsVC, animated: true)
         }
     }
@@ -299,23 +339,20 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
     // MARK: - Cart & Details
 
     private func addToCart(_ product: Product) {
-        print("Добавлено в корзину: \(product.name)")
-        // Обновление счетчика или состояния корзины
+        if !CartManager.shared.contains(product) {
+            CartManager.shared.add(product)
+            cartButton.updateCount(CartManager.shared.itemsCount)
+            showToast(message: "Item added to cart")
+        } else {
+            showToast(message: "This item is already in the cart")
+        }
     }
 
-    private func openProductDetails(_ product: Product) {
-        let detailVC = UIViewController()
-        detailVC.view.backgroundColor = .white
-        detailVC.title = product.name
 
-        let label = UILabel()
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        label.text = "\(product.name)\nЦена: $\(product.price)"
-        detailVC.view.addSubview(label)
-        label.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-        }
+    private func openProductDetails(_ product: Product) {
+        let detailVC = ProductDetailsVC(product: product)
+        detailVC.view.backgroundColor = .white
+        detailVC.title = product.title
 
         navigationController?.pushViewController(detailVC, animated: true)
     }
