@@ -83,8 +83,6 @@ final class SearchViewController: UIViewController, UISearchBarDelegate {
         collectionView.dataSource = self
         collectionView.register(ProductCell.self, forCellWithReuseIdentifier: ProductCell.identifier)
 
-               
-        
         searchBar.searchTextField.addTarget(self, action: #selector(searchTextChanged), for: .editingChanged)
 
     }
@@ -157,7 +155,6 @@ final class SearchViewController: UIViewController, UISearchBarDelegate {
                 let products = try await fetchProducts(for: query)
                 self.searchResults = products
                 self.isShowingHistory = false
-                // Переключаем UI
                 self.tableView.isHidden = true
                 self.collectionView.isHidden = false
                 self.collectionView.reloadData()
@@ -228,7 +225,6 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if isShowingHistory {
-            // Если история пустая — показываем 1 ячейку с сообщением
             return searchHistory.isEmpty ? 1 : searchHistory.count + 1
         } else {
             return searchResults.isEmpty ? 1 : searchResults.count
@@ -238,7 +234,6 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if isShowingHistory {
             if searchHistory.isEmpty {
-                // Показать сообщение, что история пуста
                 let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
                 cell.textLabel?.text = "No search history yet."
                 cell.textLabel?.textColor = .gray
@@ -246,7 +241,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.selectionStyle = .none
                 return cell
             } else if indexPath.row == searchHistory.count {
-                // Ячейка "Clear All"
+                // Clear All - cell
                 let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
                 cell.textLabel?.text = "Clear All"
                 cell.textLabel?.textColor = .red
@@ -285,16 +280,14 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 
         if isShowingHistory {
             if searchHistory.isEmpty {
-                // Если история пустая — ничего не делать по тапу
                 return
             }
             if indexPath.row == searchHistory.count {
-                // Очистить историю
+                // clean history
                 searchHistory.removeAll()
                 saveSearchHistory()
                 tableView.reloadData()
             } else {
-                // Поиск по выбранному запросу из истории
                 let selectedQuery = searchHistory[indexPath.row]
                 searchBar.text = selectedQuery
                 performSearch(query: selectedQuery)
