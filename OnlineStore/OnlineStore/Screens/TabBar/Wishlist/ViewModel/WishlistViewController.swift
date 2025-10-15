@@ -118,6 +118,13 @@ extension WishlistViewController: UICollectionViewDataSource, UICollectionViewDe
         let width = (collectionView.bounds.width - 16 - 12) / 2
         return CGSize(width: width, height: 220)
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let selectedProduct = isSearching ? filteredItems[indexPath.item] : items[indexPath.item]
+        let detailVC = ProductDetailsVC(product: selectedProduct)
+        navigationController?.pushViewController(detailVC, animated: true)
+    }
+
 }
 
 extension WishlistViewController: UISearchBarDelegate {

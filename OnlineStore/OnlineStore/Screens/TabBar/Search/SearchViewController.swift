@@ -147,7 +147,6 @@ final class SearchViewController: UIViewController, UISearchBarDelegate {
     }
 
     private func performSearch(query: String) {
-        addToHistory(query)
         loadingIndicator.startAnimating()
         
         Task {
@@ -192,6 +191,7 @@ final class SearchViewController: UIViewController, UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let query = searchBar.text, !query.isEmpty else { return }
         searchBar.resignFirstResponder()
+        addToHistory(query)
         performSearch(query: query)
     }
 
@@ -324,8 +324,19 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCell.identifier, for: indexPath) as! ProductCell
         let product = searchResults[indexPath.item]
-        let isInCart = false
+        let isInCart = CartManager.shared.contains(product)
         cell.configure(with: product, isProductInCart: isInCart)
+        cell.onAddToCart = { [weak self] in
+            guard let self = self else { return }
+            if !CartManager.shared.contains(product) {
+                CartManager.shared.add(product)
+                collectionView.reloadItems(at: [indexPath])
+                NotificationCenter.default.post(name: .cartUpdated, object: nil)
+                self.showToast(message: "Item added to cart")
+            } else {
+                self.showToast(message: "This item is already in the cart")
+            }
+        }
         return cell
     }
 
@@ -336,9 +347,7 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         navigationController?.pushViewController(detailVC, animated: true)
     }
 
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = (collectionView.bounds.width - 30) / 2
         return CGSize(width: width, height: width * 1.3)
     }
