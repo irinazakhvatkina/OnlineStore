@@ -244,4 +244,25 @@ class ProductDetailsView: UIView {
     func returnAddToCartButton() -> UIButton {
         return addToCardButton
     }
+    
+// for price
+    func updatePriceLabelText(_ formattedPrice: String) {
+        productPriceLabel.text = formattedPrice
+    }
+
+    func updatePriceLabel(priceInUSD: Double, currencyCode: String) {
+        if let convertedPrice = CurrencyManager.shared.convert(priceInUSD: priceInUSD, to: currencyCode) {
+            productPriceLabel.text = formattedPrice(convertedPrice, currencyCode: currencyCode)
+        } else {
+            productPriceLabel.text = formattedPrice(priceInUSD, currencyCode: "USD")
+        }
+    }
+
+    private func formattedPrice(_ price: Double, currencyCode: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currencyCode
+        return formatter.string(from: NSNumber(value: price)) ?? "\(price)"
+    }
+
 }

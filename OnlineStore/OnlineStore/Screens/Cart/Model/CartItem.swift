@@ -6,5 +6,5 @@ struct CartItem {
 
     var title: String { product.title }
     var variant: String { product.category.name }
-    var price: String { "$\(String(format: "%.2f", product.price))" }
+    var price: String { "\(String(format: "%.2f", product.price))" }
 }
