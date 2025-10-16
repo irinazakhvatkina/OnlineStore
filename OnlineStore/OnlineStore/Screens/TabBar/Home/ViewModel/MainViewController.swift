@@ -29,6 +29,7 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         let selectedCategoryName = categories[selectedCategoryIndex].name
         return allProducts.filter { $0.category.name == selectedCategoryName }
     }
+    private var selectedCountry: CountryData?
 
     // MARK: - Collections
 
@@ -86,6 +87,7 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         
         updateProductsCollectionViewHeight()
         NotificationCenter.default.addObserver(self, selector: #selector(cartUpdated), name: .cartUpdated, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(currencyDidChange(_:)), name: .currencyDidChange, object: nil)
     }
 
     // MARK: - Setup Methods
@@ -258,12 +260,27 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         NotificationCenter.default.removeObserver(self, name: .cartUpdated, object: nil)
     }
 
+    @objc private func currencyDidChange(_ notification: Notification) {
+        productsCollectionView.reloadData()
+    }
 
     // MARK: - DeliveryAddressDelegate
 
     func didSelectCountry(country: CountryData) {
+        selectedCountry = country
         addressView.dropdownButton.setTitle(country.name, for: .normal)
-        print("Выбрана страна: \(country.name), валюта: \(country.currencyCode)")
+        CurrencyManager.shared.setSelectedCurrency(country.currencyCode)
+
+        CurrencyManager.shared.fetchLatestRates { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success():
+                    self.productsCollectionView.reloadData()
+                case .failure(let error):
+                    print("Ошибка загрузки валют: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 
     // MARK: - UICollectionView DataSource
@@ -292,11 +309,12 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
             let product = filteredProducts[indexPath.item]
             let isProductInCart = CartManager.shared.contains(product)
             
-            cell.configure(with: product, isProductInCart: isProductInCart)
+            let currencyCode = selectedCountry?.currencyCode ?? "USD"
+            cell.configure(with: product, isProductInCart: isProductInCart, selectedCurrency: currencyCode)
 
             cell.onAddToCart = { [weak self] in
                 self?.addToCart(product)
-                cell.configure(with: product, isProductInCart: true)
+                cell.configure(with: product, isProductInCart: true, selectedCurrency: currencyCode)
             }
             
             return cell

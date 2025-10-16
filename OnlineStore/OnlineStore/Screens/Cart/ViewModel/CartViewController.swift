@@ -1,14 +1,19 @@
 import UIKit
 import SnapKit
+import SDWebImage
 import DesignPackage
 
-class CartViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, CartTableViewCellDelegate {
+// MARK: - CartViewController
+
+class CartViewController: UIViewController {
+
+    // MARK: - Properties
     
     private let mainView = CartView()
     private var cartItems: [CartItem] = []
     private var selectedIndexes = Set<Int>()
     private var selectedIndex: Int?
-    
+
     private let emptyCartLabel: UILabel = {
         let label = UILabel()
         label.text = "Your cart is empty"
@@ -20,7 +25,7 @@ class CartViewController: UIViewController, UITableViewDelegate, UITableViewData
     }()
 
     // MARK: - Initialization
-
+    
     init(selectedIndex: Int? = nil) {
         self.selectedIndex = selectedIndex
         super.init(nibName: nil, bundle: nil)
@@ -30,8 +35,8 @@ class CartViewController: UIViewController, UITableViewDelegate, UITableViewData
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Lifecycle Methods
-
+    // MARK: - Lifecycle
+    
     override func loadView() {
         self.view = mainView
     }
@@ -40,24 +45,34 @@ class CartViewController: UIViewController, UITableViewDelegate, UITableViewData
         super.viewDidLoad()
         title = "Cart"
         view.backgroundColor = .white
-        
         cartItems = CartManager.shared.allItems()
+
         setupTableView()
         setupEmptyCartLabel()
-        updateTotalPrice()
         setupBackButton()
+        updateTotalPrice()
         
         if let selectedIndex = selectedIndex {
             selectItem(at: selectedIndex)
         }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(currencyDidChange), name: .currencyDidChange, object: nil)
     }
 
-    // MARK: - Setup Methods
-
+    // MARK: - Setup UI
+    
     private func setupTableView() {
         mainView.tableView.delegate = self
         mainView.tableView.dataSource = self
         mainView.tableView.register(CartTableViewCell.self, forCellReuseIdentifier: "CartTableViewCell")
+    }
+    
+    private func setupEmptyCartLabel() {
+        view.addSubview(emptyCartLabel)
+        emptyCartLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(20)
+        }
     }
     
     private func setupBackButton() {
@@ -68,20 +83,19 @@ class CartViewController: UIViewController, UITableViewDelegate, UITableViewData
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
     }
     
+    // MARK: - Actions
+    
     @objc private func backTapped() {
         navigationController?.popViewController(animated: true)
     }
     
-    private func setupEmptyCartLabel() {
-        view.addSubview(emptyCartLabel)
-        emptyCartLabel.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(20)
-        }
+    @objc private func currencyDidChange() {
+        mainView.tableView.reloadData()
+        updateTotalPrice()
     }
 
-    // MARK: - Cart Item Selection
-
+    // MARK: - Helpers
+    
     private func selectItem(at index: Int) {
         let indexPath = IndexPath(row: index, section: 0)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -93,13 +107,30 @@ class CartViewController: UIViewController, UITableViewDelegate, UITableViewData
             self.mainView.tableView.scrollToRow(at: indexPath, at: .middle, animated: true)
         }
     }
-
+    
     private func loadCartItems() {
         cartItems = CartManager.shared.allItems()
         mainView.updateItems(cartItems)
     }
+    
+    private func updateTotalPrice() {
+        let currencyCode = CurrencyManager.shared.selectedCurrency
+        let total = selectedIndexes.reduce(into: 0.0) { result, index in
+            let item = cartItems[index]
+            if let priceDouble = Double(item.price) {
+                let convertedPrice = CurrencyManager.shared.convert(priceInUSD: priceDouble, to: currencyCode) ?? priceDouble
+                result += convertedPrice * Double(item.quantity)
+            }
+        }
+        mainView.totalPriceLabel.text = total.formattedPrice(currencyCode: currencyCode)
+        emptyCartLabel.isHidden = !cartItems.isEmpty
+    }
 
-    // MARK: - UITableViewDataSource Methods
+}
+
+// MARK: - UITableViewDelegate & UITableViewDataSource
+
+extension CartViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         emptyCartLabel.isHidden = cartItems.count > 0
@@ -107,20 +138,18 @@ class CartViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "CartTableViewCell", for: indexPath) as? CartTableViewCell else {
             return UITableViewCell()
         }
-        
+
         let item = cartItems[indexPath.row]
-        cell.configure(with: item)
+        let currencyCode = CurrencyManager.shared.selectedCurrency
+        cell.configure(with: item, currencyCode: currencyCode)
         cell.delegate = self
-        
         cell.setSelectedCheckbox(selectedIndexes.contains(indexPath.row))
-        
         return cell
     }
-
-    // MARK: - UITableViewDelegate Methods
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 120
@@ -132,8 +161,11 @@ class CartViewController: UIViewController, UITableViewDelegate, UITableViewData
         let detailVC = ProductDetailsVC(product: selectedItem.product)
         navigationController?.pushViewController(detailVC, animated: true)
     }
+}
 
-    // MARK: - CartTableViewCellDelegate Methods
+// MARK: - CartTableViewCellDelegate
+
+extension CartViewController: CartTableViewCellDelegate {
 
     func didTapPlus(in cell: CartTableViewCell) {
         guard let indexPath = mainView.tableView.indexPath(for: cell) else { return }
@@ -159,18 +191,5 @@ class CartViewController: UIViewController, UITableViewDelegate, UITableViewData
             selectedIndexes.remove(indexPath.row)
         }
         updateTotalPrice()
-    }
-
-    // MARK: - Update Total Price
-
-    private func updateTotalPrice() {
-        let total = selectedIndexes.reduce(0.0) { result, index in
-            let item = cartItems[index]
-            let priceString = item.price.replacingOccurrences(of: "$", with: "").replacingOccurrences(of: ",", with: ".")
-            let price = Double(priceString) ?? 0.0
-            return result + price * Double(item.quantity)
-        }
-        mainView.totalPriceLabel.text = String(format: "$ %.2f", total)
-        emptyCartLabel.isHidden = !cartItems.isEmpty
     }
 }

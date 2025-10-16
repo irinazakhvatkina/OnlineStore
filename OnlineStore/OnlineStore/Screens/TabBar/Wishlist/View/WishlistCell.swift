@@ -50,9 +50,13 @@ class WishlistCell: UICollectionViewCell {
     var product: Product?
     var onHeartButtonTapped: ((Product) -> Void)?
     var showToast: ((String) -> Void)?
-
     private var isLiked: Bool = false
-
+    var currencyCode: String = "USD" {
+            didSet {
+                updatePriceLabel()
+            }
+        }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.backgroundColor = #colorLiteral(red: 0.9803919196, green: 0.9803923965, blue: 0.9890013337, alpha: 1)
@@ -129,6 +133,13 @@ class WishlistCell: UICollectionViewCell {
        let imageName = isLiked ? "WishlistActive" : "WishlistInactive"
        heartButton.setImage(UIImage(named: imageName), for: .normal)
    }
+    private func updatePriceLabel() {
+        guard let product = product else { return }
+        let priceInUSD = product.price
+        let convertedPrice = CurrencyManager.shared.convert(priceInUSD: priceInUSD, to: currencyCode) ?? priceInUSD
+        priceLabel.text = convertedPrice.formattedPrice(currencyCode: currencyCode)
+    }
+
 
     // MARK: - Add to Cart Button Action
     @objc private func addToCartTapped() {
@@ -148,9 +159,8 @@ class WishlistCell: UICollectionViewCell {
     // MARK: - Configure Cell
     func configure(with item: Product) {
         self.product = item
+        updatePriceLabel()
         itemNameLabel.text = item.title
-        priceLabel.text = "$\(item.price)"
-        
         if let imageURLString = item.images.first, let url = URL(string: imageURLString) {
             imageView.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder"))
         }

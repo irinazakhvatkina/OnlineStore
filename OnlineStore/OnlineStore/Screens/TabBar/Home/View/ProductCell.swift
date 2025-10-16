@@ -98,11 +98,20 @@ class ProductCell: UICollectionViewCell {
             self.addToCartButton.setTitle(originalTitle, for: .normal)
         })
     }
+    
+    func getCurrencySymbol(for currencyCode: String) -> String {
+        let locale = Locale.availableIdentifiers
+            .compactMap { Locale(identifier: $0) }
+            .first { $0.currencyCode == currencyCode }
+        return locale?.currencySymbol ?? currencyCode
+    }
 
-    func configure(with product: Product, isProductInCart: Bool) {
+    func configure(with product: Product, isProductInCart: Bool, selectedCurrency: String) {
         nameLabel.text = product.title
-        priceLabel.text = String(format: "$%.2f", product.price)
-
+        let priceUSD = product.price
+        let convertedPrice = CurrencyManager.shared.convert(priceInUSD: priceUSD, to: selectedCurrency) ?? priceUSD
+        let currencySymbol = getCurrencySymbol(for: selectedCurrency)
+        priceLabel.text = String(format: "\(currencySymbol)%.2f", convertedPrice)
         imageView.image = nil
 
         if let firstImageURLString = product.images.first,

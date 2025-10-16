@@ -46,7 +46,8 @@ final class SearchViewController: UIViewController, UISearchBarDelegate {
         }()
     private let tableView = UITableView()
     private var loadingIndicator: UIActivityIndicatorView!
-
+    private var selectedCurrency: String = "USD"
+    
     // MARK: - Data
     private var searchHistory: [String] = []
     private var searchResults: [Product] = []
@@ -59,8 +60,9 @@ final class SearchViewController: UIViewController, UISearchBarDelegate {
         setupUI()
         setupConstraints()
         setupGestureToHideKeyboard()
-        
         loadSearchHistory()
+        NotificationCenter.default.addObserver(self, selector: #selector(currencyChanged(_:)), name: .currencyDidChange, object: nil)
+
     }
 
     // MARK: - Setup
@@ -194,6 +196,17 @@ final class SearchViewController: UIViewController, UISearchBarDelegate {
         addToHistory(query)
         performSearch(query: query)
     }
+    
+    func setCurrencyCode(_ currency: String) {
+        self.selectedCurrency = currency
+    }
+    
+    @objc private func currencyChanged(_ notification: Notification) {
+        if let newCurrency = notification.object as? String {
+            self.selectedCurrency = newCurrency
+            collectionView.reloadData()
+        }
+    }
 
     // MARK: - Networking
     private func fetchProducts(for query: String) async throws -> [Product] {
@@ -325,7 +338,7 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCell.identifier, for: indexPath) as! ProductCell
         let product = searchResults[indexPath.item]
         let isInCart = CartManager.shared.contains(product)
-        cell.configure(with: product, isProductInCart: isInCart)
+        cell.configure(with: product, isProductInCart: isInCart, selectedCurrency: selectedCurrency)
         cell.onAddToCart = { [weak self] in
             guard let self = self else { return }
             if !CartManager.shared.contains(product) {

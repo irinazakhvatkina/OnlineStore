@@ -32,9 +32,10 @@ class ProductDetailsVC: UIViewController {
         setupRightButton()
         setupButtonTargets()
         NotificationCenter.default.addObserver(self, selector: #selector(cartUpdated), name: .cartUpdated, object: nil)
-
         isLiked = WishlistManager.shared.isProductInWishlist(product)
         updateHeartButton()
+        NotificationCenter.default.addObserver(self, selector: #selector(currencyChanged(_:)), name: .currencyDidChange, object: nil)
+        updatePriceLabel()
     }
 
     // MARK: - Setup
@@ -134,10 +135,19 @@ class ProductDetailsVC: UIViewController {
         cartView.updateCount(itemsCount)
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: .cartUpdated, object: nil)
+    private func updatePriceLabel() {
+        let currency = CurrencyManager.shared.selectedCurrency
+        mainView.updatePriceLabel(priceInUSD: product.price, currencyCode: currency)
     }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .cartUpdated, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .currencyDidChange, object: nil)
+    }
+    
+    @objc private func currencyChanged(_ notification: Notification) {
+        updatePriceLabel()
+    }
     // MARK: - Navigation
 
     private func goToCart() {
