@@ -8,6 +8,14 @@
 import UIKit
 
 class CustomTabBarController: UITabBarController {
+    
+    // MARK: - Properties
+    private var isManagerMode: Bool {
+        let savedType = UserDefaults.standard.string(forKey: "accountType") ?? "client"
+        return savedType == "manager"
+    }
+    
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         // for active title
@@ -17,35 +25,96 @@ class CustomTabBarController: UITabBarController {
         tabBar.backgroundColor = .white
         addShadow()
         setupTabs()
+        setupNotifications()
+        
+        // Устанавливаем начальную вкладку - Account (последний индекс)
+        setInitialTab()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    // MARK: - Setup
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAccountTypeChange),
+            name: NSNotification.Name("AccountTypeDidChange"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleAccountTypeChange() {
+        // Сохраняем текущий индекс перед обновлением
+        let currentIndex = selectedIndex
+        let wasManagerMode = isManagerMode
+
+        // Обновляем табы при изменении типа аккаунта
+        setupTabs()
+
+        DispatchQueue.main.async {
+            let maxIndex = (self.viewControllers?.count ?? 1) - 1
+
+            if !wasManagerMode && self.isManagerMode {
+                // После перехода в режим менеджера — выбираем последнюю вкладку
+                self.selectedIndex = maxIndex
+            } else if currentIndex <= maxIndex {
+                // Если индекс валиден — возвращаемся на него
+                self.selectedIndex = currentIndex
+            } else {
+                // Иначе — на последнюю доступную вкладку
+                self.selectedIndex = maxIndex
+            }
+        }
     }
 
+
+    
+    private func setInitialTab() {
+        // Всегда начинаем с последней вкладки (Account)
+        selectedIndex = (viewControllers?.count ?? 1)
+    }
+    
     func setupTabs() {
+        // Создаем основные контроллеры
         let hvc = MainViewController()
-        hvc.tabBarItem = UITabBarItem(title: "Home",
+        let hvcNav = UINavigationController(rootViewController: hvc)
+        hvcNav.tabBarItem = UITabBarItem(title: "Home",
                                         image: UIImage.homeInactive,
                                         selectedImage: UIImage.homeActive.withRenderingMode(.alwaysOriginal))
             
         let wvc = WishlistViewController()
-        wvc.tabBarItem = UITabBarItem(title: "Wishlist",
+        let wvcNav = UINavigationController(rootViewController: wvc)
+        wvcNav.tabBarItem = UITabBarItem(title: "Wishlist",
                                         image: UIImage.wishlistInactive,
                                         selectedImage: UIImage.wishlistActive.withRenderingMode(.alwaysOriginal))
             
-        let mvc = ManagerViewController()
-        mvc.tabBarItem = UITabBarItem(title: "Manager",
-                                        image: UIImage.paperInactive,
-                                        selectedImage: UIImage.paperActive.withRenderingMode(.alwaysOriginal))
-
         let svc = SearchViewController()
-        svc.tabBarItem = UITabBarItem(title: "Search",
+        let svcNav = UINavigationController(rootViewController: svc)
+        svcNav.tabBarItem = UITabBarItem(title: "Search",
                                         image: UIImage.searchInactive,
                                         selectedImage: UIImage.searchActive.withRenderingMode(.alwaysOriginal))
             
         let avc = AccountViewController()
-        avc.tabBarItem = UITabBarItem(title: "Account",
+        let avcNav = UINavigationController(rootViewController: avc)
+        avcNav.tabBarItem = UITabBarItem(title: "Account",
                                         image: UIImage.accountInactive,
                                         selectedImage: UIImage.accountActive.withRenderingMode(.alwaysOriginal))
+        
+        if isManagerMode {
+            // Режим менеджера - 5 вкладок
+            let mvc = ManagerViewController()
+            let mvcNav = UINavigationController(rootViewController: mvc)
+            mvcNav.tabBarItem = UITabBarItem(title: "Manager",
+                                          image: UIImage.paperInactive,
+                                          selectedImage: UIImage.paperActive.withRenderingMode(.alwaysOriginal))
             
-        viewControllers = [hvc, wvc, mvc, svc, avc]
+            viewControllers = [hvcNav, wvcNav, mvcNav, svcNav, avcNav]
+        } else {
+            // Режим клиента - 4 вкладки
+            viewControllers = [hvcNav, wvcNav, svcNav, avcNav]
+        }
     }
 
     func addShadow() {
