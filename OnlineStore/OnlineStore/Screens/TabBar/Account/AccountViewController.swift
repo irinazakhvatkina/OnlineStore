@@ -66,8 +66,8 @@ class AccountViewController: UIViewController {
     private let buttonsStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
-        stackView.spacing = 15 // Расстояние между кнопками 15
-        stackView.backgroundColor = .clear // Убираем фон
+        stackView.spacing = 15
+        stackView.backgroundColor = .clear
         return stackView
     }()
     
@@ -85,17 +85,24 @@ class AccountViewController: UIViewController {
         customIconName: "signout"
     )
     
+    private var currentAccountType: AccountType = .client {
+        didSet {
+            updateAccountTypeDisplay()
+        }
+    }
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupConstraints()
         setupActions()
+        loadAccountType()
     }
     
     // MARK: - Setup
     private func setupUI() {
-        view.backgroundColor = .systemGray
+        view.backgroundColor = .white
         
         // Add scroll view and content view
         view.addSubview(scrollView)
@@ -114,9 +121,6 @@ class AccountViewController: UIViewController {
         buttonsStackView.addArrangedSubview(accountTypeButton)
         buttonsStackView.addArrangedSubview(termsButton)
         buttonsStackView.addArrangedSubview(logoutButton)
-        
-        // Убираем фиксированную высоту, так как она уже задана в ProfileButtonView
-        // и stackView сам управляет расположением
     }
     
     private func setupConstraints() {
@@ -174,7 +178,7 @@ class AccountViewController: UIViewController {
         
         // Button actions
         accountTypeButton.tapAction = { [weak self] in
-            self?.accountTypeTapped()
+            self?.showAccountTypeSelection()
         }
         
         termsButton.tapAction = { [weak self] in
@@ -189,29 +193,100 @@ class AccountViewController: UIViewController {
     // MARK: - Actions
     private func accountTypeTapped() {
         print("Account type tapped")
-        // Handle account type action
     }
     
     private func termsTapped() {
-        print("Terms & Conditions tapped")
-        // Handle terms action
+        let termsVC = TermsConditionsViewController()
+        termsVC.hidesBottomBarWhenPushed = false
+        navigationController?.pushViewController(termsVC, animated: true)
     }
     
     private func logoutTapped() {
         print("Logout tapped")
-        // Handle logout action
+    }
+    
+    // MARK: - Account Type Management
+    private func loadAccountType() {
+        let savedType = UserDefaults.standard.string(forKey: "accountType") ?? "client"
+        currentAccountType = AccountType(rawValue: savedType) ?? .client
+    }
+    
+    private func saveAccountType(_ type: AccountType) {
+        UserDefaults.standard.set(type.rawValue, forKey: "accountType")
+        currentAccountType = type
+        
+        NotificationCenter.default.post(name: NSNotification.Name("AccountTypeDidChange"), object: nil)
+        
+        showSuccessMessage()
+    }
+    
+    private func updateAccountTypeDisplay() {
+        let subtitle = currentAccountType == .client ? "Client" : "Manager"
+    }
+    
+    private func showSuccessMessage() {
+        let alert = UIAlertController(
+            title: "Account Type Changed",
+            message: "Your account type has been successfully changed to \(currentAccountType == .client ? "Client" : "Manager").",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true)
+    }
+    
+    // MARK: - Account Type Selection
+    private func showAccountTypeSelection() {
+        let popupVC = AccountTypePopupViewController()
+        popupVC.delegate = self
+        popupVC.configure(with: currentAccountType)
+        popupVC.modalPresentationStyle = .overFullScreen
+        popupVC.modalTransitionStyle = .crossDissolve
+        present(popupVC, animated: true)
+    }
+    
+    // MARK: - Photo Selection
+    private func showChangePhotoPopup() {
+        let popupVC = ChangePhotoPopupViewController()
+        popupVC.delegate = self
+        popupVC.modalPresentationStyle = .overFullScreen
+        popupVC.modalTransitionStyle = .crossDissolve
+        present(popupVC, animated: true)
     }
 }
 
 // MARK: - ProfileAvatarViewDelegate
 extension AccountViewController: ProfileAvatarViewDelegate {
     func profileAvatarViewDidTapEdit(_ view: ProfileAvatarView) {
-        print("Edit button tapped - open photo editor")
-        // Handle edit photo action
+        showChangePhotoPopup()
     }
     
     func profileAvatarViewDidTapAvatar(_ view: ProfileAvatarView) {
         print("Avatar tapped - open full screen view or change photo")
-        // Handle avatar tap action
+    }
+}
+
+// MARK: - AccountTypePopupDelegate
+extension AccountViewController: AccountTypePopupDelegate {
+    func didSelectAccountType(_ type: AccountType) {
+        saveAccountType(type)
+    }
+}
+
+// MARK: - ChangePhotoPopupDelegate
+extension AccountViewController: ChangePhotoPopupDelegate {
+    func didSelectTakePhoto() {
+        print("Take photo selected")
+        // TODO: Implement camera access
+    }
+    
+    func didSelectChooseFromFile() {
+        print("Choose from file selected")
+        // TODO: Implement photo library access
+    }
+    
+    func didSelectDeletePhoto() {
+        print("Delete photo selected")
+        // TODO: Implement delete photo logic
     }
 }
