@@ -14,6 +14,7 @@ class CustomTabBarController: UITabBarController {
         let savedType = UserDefaults.standard.string(forKey: "accountType") ?? "client"
         return savedType == "manager"
     }
+    private var previousIsManagerMode: Bool = false
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -45,15 +46,26 @@ class CustomTabBarController: UITabBarController {
     }
     
     @objc private func handleAccountTypeChange() {
-        let currentTabTitle = selectedViewController?.tabBarItem.title
+        let oldIsManagerMode = previousIsManagerMode
         setupTabs()
+        
         DispatchQueue.main.async {
-            if let tabTitle = currentTabTitle,
-               let indexToRestore = self.viewControllers?.firstIndex(where: { $0.tabBarItem.title == tabTitle }) {
-                self.selectedIndex = indexToRestore
+            let maxIndex = (self.viewControllers?.count ?? 1) - 1
+            let newIsManagerMode = self.isManagerMode
+
+            if !oldIsManagerMode && newIsManagerMode {
+                self.selectedIndex = 2
+            } else if oldIsManagerMode && !newIsManagerMode {
+                self.selectedIndex = maxIndex
             } else {
-                self.selectedIndex = (self.viewControllers?.count ?? 1) - 1
+                let currentIndex = self.selectedIndex
+                if currentIndex <= maxIndex {
+                    self.selectedIndex = currentIndex
+                } else {
+                    self.selectedIndex = maxIndex
+                }
             }
+            self.previousIsManagerMode = newIsManagerMode
         }
     }
 
