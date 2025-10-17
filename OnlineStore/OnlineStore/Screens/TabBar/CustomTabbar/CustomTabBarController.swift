@@ -20,7 +20,6 @@ class CustomTabBarController: UITabBarController {
         super.viewDidLoad()
         // for active title
         UITabBarItem.appearance().setTitleTextAttributes([.foregroundColor: AppColors.primaryBlue.uiColor], for: .selected)
-        
         tabBar.isTranslucent = false
         tabBar.backgroundColor = .white
         addShadow()
@@ -46,34 +45,20 @@ class CustomTabBarController: UITabBarController {
     }
     
     @objc private func handleAccountTypeChange() {
-        // Сохраняем текущий индекс перед обновлением
-        let currentIndex = selectedIndex
-        let wasManagerMode = isManagerMode
-
-        // Обновляем табы при изменении типа аккаунта
+        let currentTabTitle = selectedViewController?.tabBarItem.title
         setupTabs()
-
         DispatchQueue.main.async {
-            let maxIndex = (self.viewControllers?.count ?? 1) - 1
-
-            if !wasManagerMode && self.isManagerMode {
-                // После перехода в режим менеджера — выбираем последнюю вкладку
-                self.selectedIndex = maxIndex
-            } else if currentIndex <= maxIndex {
-                // Если индекс валиден — возвращаемся на него
-                self.selectedIndex = currentIndex
+            if let tabTitle = currentTabTitle,
+               let indexToRestore = self.viewControllers?.firstIndex(where: { $0.tabBarItem.title == tabTitle }) {
+                self.selectedIndex = indexToRestore
             } else {
-                // Иначе — на последнюю доступную вкладку
-                self.selectedIndex = maxIndex
+                self.selectedIndex = (self.viewControllers?.count ?? 1) - 1
             }
         }
     }
 
-
-    
     private func setInitialTab() {
-        // Всегда начинаем с последней вкладки (Account)
-        selectedIndex = (viewControllers?.count ?? 1)
+        selectedIndex = (viewControllers?.count ?? 1) - 1
     }
     
     func setupTabs() {
