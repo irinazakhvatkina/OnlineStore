@@ -4,7 +4,7 @@ import DesignPackage
 
 class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate, UITextViewDelegate {
 
-    // UI Elements
+    // MARK: - UI Elements
     private let scrollView = UIScrollView()
     private let contentView = UIView()
 
@@ -36,9 +36,9 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
     private let saveButton = UIButton(type: .system)
 
     private var categories: [String] = []
-
     private var isPickerOpen = false
 
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -48,6 +48,7 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
         fetchCategories()
     }
 
+    // MARK: - Setup UI
     private func setupUI() {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -64,7 +65,7 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
         func setupLabel(_ label: UILabel, withText text: String) {
             label.text = text
             label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-            label.textColor = .black
+            label.textColor = .mainTitlesDark
             label.textAlignment = .left
             label.setContentHuggingPriority(.required, for: .horizontal)
         }
@@ -89,7 +90,7 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
         setupTextField(categoryField)
         categoryField.placeholder = "Select category"
         categoryField.inputView = categoryPicker
-        categoryField.clearButtonMode = .never // чтоб крестик не мешал dropdown
+        categoryField.clearButtonMode = .never
         categoryField.rightView = dropdownIcon
         categoryField.rightViewMode = .always
         dropdownIcon.tintColor = .gray
@@ -98,11 +99,9 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
             make.width.height.equalTo(12)
         }
 
-        // Добавляем таргеты на события для categoryField
         categoryField.addTarget(self, action: #selector(categoryFieldEditingDidBegin), for: .editingDidBegin)
         categoryField.addTarget(self, action: #selector(categoryFieldEditingDidEnd), for: .editingDidEnd)
 
-        // Toolbar для picker
         let toolbar = UIToolbar()
         toolbar.sizeToFit()
         let doneBtn = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissPicker))
@@ -134,7 +133,6 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
             make.left.right.equalToSuperview().inset(20)
         }
 
-        // Добавляем кнопку очистки Description поверх descriptionField
         contentView.addSubview(clearDescriptionButton)
         clearDescriptionButton.addTarget(self, action: #selector(clearDescription), for: .touchUpInside)
         clearDescriptionButton.snp.makeConstraints { make in
@@ -144,7 +142,7 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
         }
 
         saveButton.setTitle("Save", for: .normal)
-        saveButton.backgroundColor = .systemBlue
+        saveButton.backgroundColor = .buttonLightBlue
         saveButton.setTitleColor(.white, for: .normal)
         saveButton.layer.cornerRadius = 8
         saveButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
@@ -163,6 +161,7 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
         categoryPicker.dataSource = self
     }
 
+    // MARK: - Helper methods
     private func createRow(label: UILabel, inputView: UIView, isTextView: Bool = false) -> UIStackView {
         let stack = UIStackView(arrangedSubviews: [label, inputView])
         stack.axis = .horizontal
@@ -185,6 +184,7 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
         return stack
     }
 
+    // MARK: - UIPickerViewDataSource & Delegate
     func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int { categories.count }
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? { categories[row] }
@@ -192,6 +192,7 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
         categoryField.text = categories[row]
     }
 
+    // MARK: - Actions
     @objc private func dismissPicker() {
         categoryField.resignFirstResponder()
     }
@@ -227,7 +228,6 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
     }
 
     // MARK: - Dropdown icon rotation
-
     @objc private func categoryFieldEditingDidBegin() {
         isPickerOpen = true
         rotateDropdownIcon(open: true)
@@ -245,7 +245,6 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
     }
 
     // MARK: - Clear description button
-
     func textViewDidChange(_ textView: UITextView) {
         clearDescriptionButton.isHidden = textView.text.isEmpty
     }
