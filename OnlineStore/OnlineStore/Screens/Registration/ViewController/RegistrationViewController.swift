@@ -5,6 +5,7 @@
 //  Created by Zarina Sadykova on 31.08.25.
 //
 import UIKit
+import SnapKit
 
 class RegistrationViewController: UIViewController {
     
@@ -226,34 +227,7 @@ class RegistrationViewController: UIViewController {
 // MARK: - AccountTypePopupDelegate
 extension RegistrationViewController: AccountTypePopupDelegate {
     func didSelectAccountType(_ type: AccountType) {
-        accountTypeButton.configure(title: "Type of account")
-    }
-    
-    func didSelectManagerWithPassword() {
-        showManagerPasswordAlert()
-    }
-    
-    private func showManagerPasswordAlert() {
-        let alert = UIAlertController(
-            title: "Manager Access",
-            message: "Enter manager password:",
-            preferredStyle: .alert
-        )
-        
-        alert.addTextField { textField in
-            textField.placeholder = "Password"
-            textField.isSecureTextEntry = true
-        }
-        
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Confirm", style: .default) { [weak self] _ in
-            if let password = alert.textFields?.first?.text, password == "manager123" {
-                self?.accountTypeButton.configure(title: "Type of account")
-            } else {
-                self?.showAlert(message: "Invalid manager password")
-            }
-        })
-        
-        present(alert, animated: true)
+        // Обновляем кнопку с выбранным типом аккаунта
+        accountTypeButton.configure(title: "Type of account", accountType: type)
     }
 }

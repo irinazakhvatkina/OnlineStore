@@ -16,6 +16,14 @@ class AccountTypeButton: UIButton {
         return label
     }()
     
+    private let valueLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textColor = .black
+        label.textAlignment = .right
+        return label
+    }()
+    
     private let chevronImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "chevron.right")
@@ -40,6 +48,7 @@ class AccountTypeButton: UIButton {
         layer.borderColor = UIColor.systemGray4.cgColor
         
         addSubview(titleTextLabel)
+        addSubview(valueLabel)
         addSubview(chevronImageView)
         
         titleTextLabel.snp.makeConstraints { make in
@@ -53,9 +62,23 @@ class AccountTypeButton: UIButton {
             make.width.equalTo(12)
             make.height.equalTo(16)
         }
+        
+        valueLabel.snp.makeConstraints { make in
+            make.trailing.equalTo(chevronImageView.snp.leading).offset(-8)
+            make.centerY.equalToSuperview()
+            make.leading.greaterThanOrEqualTo(titleTextLabel.snp.trailing).offset(8)
+        }
     }
     
-    func configure(title: String) { // ← ТОЛЬКО ОДИН АРГУМЕНТ
+    func configure(title: String, accountType: AccountType? = nil) {
         titleTextLabel.text = title
+        
+        if let accountType = accountType {
+            valueLabel.text = accountType.rawValue
+            valueLabel.isHidden = false
+        } else {
+            valueLabel.text = nil
+            valueLabel.isHidden = true
+        }
     }
 }
