@@ -43,8 +43,15 @@
     <!-- Добавьте этот тег в корневой словарь (dict) -->
     <key>NSPhotoLibraryUsageDescription</key>
     <string>This app needs access to photo library to let you choose profile pictures</string>
+        
+    <!-- Разрешения для камеры -->
     <key>NSCameraUsageDescription</key>
     <string>This app needs access to camera to take photos for your profile</string>
-    
+        
+    <!-- Для iOS 11+ может потребоваться -->
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>This app needs access to photo library to save photos</string>
+        
+
 </dict>
 </plist>

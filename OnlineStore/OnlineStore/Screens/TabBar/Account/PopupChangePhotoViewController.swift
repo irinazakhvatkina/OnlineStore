@@ -7,13 +7,6 @@
 import UIKit
 import PhotosUI
 
-protocol ChangePhotoPopupDelegate: AnyObject {
-    func didSelectTakePhoto()
-    func didSelectChooseFromFile()
-    func didSelectDeletePhoto()
-    func didSelectImage(_ image: UIImage)
-}
-
 class ChangePhotoPopupViewController: UIViewController {
     
     // MARK: - UI Elements
@@ -59,13 +52,17 @@ class ChangePhotoPopupViewController: UIViewController {
     
     // MARK: - Properties
     weak var delegate: ChangePhotoPopupDelegate?
+    private let photoPickerManager = PhotoPickerManager()
     
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupConstraints()
         setupActions()
+        
+        // Настраиваем менеджер пикера
+        photoPickerManager.delegate = self
+        print("✅ ChangePhotoPopupViewController: PhotoPickerManager delegate set")
     }
     
     // MARK: - Setup
@@ -121,11 +118,26 @@ class ChangePhotoPopupViewController: UIViewController {
     }
     
     @objc private func chooseFromFileTapped() {
-        delegate?.didSelectChooseFromFile()
+        print("🟡 Choose from file tapped")
+        
         dismiss(animated: true) { [weak self] in
-            self?.presentImagePicker()
+            guard let self = self else { return }
+
+            if let topController = self.getTopViewController() {
+                print("🟡 Presenting photo picker")
+
+                // 💡 Убедимся, что делегат установлен
+                if self.photoPickerManager.delegate == nil {
+                    print("⚠️ Delegate was nil – assigning now")
+                    self.photoPickerManager.delegate = self
+                }
+
+                print("✅ Delegate assigned: \(self.photoPickerManager.delegate != nil)")
+                self.photoPickerManager.presentPhotoPicker(from: topController)
+            }
         }
     }
+
     
     @objc private func deletePhotoTapped() {
         delegate?.didSelectDeletePhoto()
@@ -139,83 +151,42 @@ class ChangePhotoPopupViewController: UIViewController {
         }
     }
     
-    // MARK: - Image Picker
-    private func presentImagePicker() {
-        if #available(iOS 14.0, *) {
-            // Используем PHPickerViewController для iOS 14+
-            var configuration = PHPickerConfiguration()
-            configuration.filter = .images
-            configuration.selectionLimit = 1
-            
-            let picker = PHPickerViewController(configuration: configuration)
-            picker.delegate = self
-            present(picker, animated: true)
-        } else {
-            // Используем UIImagePickerController для iOS 13 и ниже
-            let imagePicker = UIImagePickerController()
-            imagePicker.delegate = self
-            imagePicker.sourceType = .photoLibrary
-            imagePicker.allowsEditing = false
-            present(imagePicker, animated: true)
-        }
-    }
-    
-    // MARK: - Camera
-    private func presentCamera() {
-        // Проверяем доступность камеры
-        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
-            showErrorAlert(message: "Camera is not available on this device")
-            return
+    private func getTopViewController() -> UIViewController? {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootViewController = windowScene.windows.first?.rootViewController else {
+            return nil
         }
         
-        let imagePicker = UIImagePickerController()
-        imagePicker.delegate = self
-        imagePicker.sourceType = .camera
-        imagePicker.cameraCaptureMode = .photo
-        imagePicker.allowsEditing = false
-        
-        present(imagePicker, animated: true)
+        var topController = rootViewController
+        while let presentedController = topController.presentedViewController {
+            topController = presentedController
+        }
+        return topController
     }
 }
 
-// MARK: - PHPickerViewControllerDelegate (iOS 14+)
-@available(iOS 14.0, *)
-extension ChangePhotoPopupViewController: PHPickerViewControllerDelegate {
-    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        picker.dismiss(animated: true)
+// MARK: - ChangePhotoPopupDelegate
+extension ChangePhotoPopupViewController: ChangePhotoPopupDelegate {
+    func didSelectImage(_ image: UIImage) {
+        print("🎯 ChangePhotoPopupViewController: Received image - \(image.size)")
         
-        guard let result = results.first else { return }
-        
-        result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] (object, error) in
-            if let image = object as? UIImage {
-                DispatchQueue.main.async {
-                    self?.delegate?.didSelectImage(image)
-                }
-            } else if let error = error {
-                print("Error loading image: \(error.localizedDescription)")
-                // Можно показать alert с ошибкой
-                DispatchQueue.main.async {
-                    self?.showErrorAlert(message: "Failed to load image")
-                }
-            }
-        }
-    }
-}
-
-// MARK: - UIImagePickerControllerDelegate & UINavigationControllerDelegate (iOS 13 and below)
-extension ChangePhotoPopupViewController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        picker.dismiss(animated: true)
-        
-        if let image = info[.originalImage] as? UIImage {
-            delegate?.didSelectImage(image)
-        } else {
-            showErrorAlert(message: "Failed to load image")
+        // НЕМЕДЛЕННО передаем фото в AccountViewController
+        DispatchQueue.main.async {
+            print("🟡 Forwarding image to AccountViewController")
+            self.delegate?.didSelectImage(image)
         }
     }
     
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        picker.dismiss(animated: true)
+    func didSelectTakePhoto() {
+        delegate?.didSelectTakePhoto()
+    }
+    
+    func didSelectChooseFromFile() {
+        delegate?.didSelectChooseFromFile()
+    }
+    
+    func didSelectDeletePhoto() {
+        delegate?.didSelectDeletePhoto()
     }
 }
 
@@ -223,22 +194,5 @@ extension ChangePhotoPopupViewController: UIImagePickerControllerDelegate & UINa
 extension ChangePhotoPopupViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         return touch.view == view
-    }
-}
-
-// MARK: - Alert Helper
-extension ChangePhotoPopupViewController {
-    private func showErrorAlert(message: String) {
-        let alert = UIAlertController(
-            title: "Error",
-            message: message,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        
-        // Находим верхний представленный контроллер для показа alert
-        if let topController = UIApplication.shared.windows.first?.rootViewController?.presentedViewController {
-            topController.present(alert, animated: true)
-        }
     }
 }

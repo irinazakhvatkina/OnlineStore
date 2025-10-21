@@ -33,6 +33,7 @@ class AccountViewController: UIViewController {
         return label
     }()
     
+    // УБРАЛ ДУБЛИРОВАНИЕ - оставил только один profileAvatarView
     private let profileAvatarView: ProfileAvatarView = {
         let view = ProfileAvatarView()
         return view
@@ -100,6 +101,9 @@ class AccountViewController: UIViewController {
         setupActions()
         loadAccountType()
         loadSavedAvatar()
+        
+        print("🔍 AccountViewController loaded")
+        print("🔍 ProfileAvatarView: \(profileAvatarView)")
     }
 
     private func loadSavedAvatar() {
@@ -211,6 +215,53 @@ class AccountViewController: UIViewController {
     
     private func logoutTapped() {
         print("Logout tapped")
+        
+        // Показываем подтверждение выхода
+        let alert = UIAlertController(
+            title: "Log Out",
+            message: "Are you sure you want to log out?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Log Out", style: .destructive) { [weak self] _ in
+            self?.performLogout()
+        })
+        
+        present(alert, animated: true)
+    }
+
+    private func performLogout() {
+        // Очищаем сохраненные данные (если нужно)
+        UserDefaults.standard.removeObject(forKey: "accountType")
+        
+        // Создаем LoginViewController для возврата на экран логина
+        let loginVC = LoginViewController()
+        
+        // Анимированный переход на экран логина
+        if let window = self.view.window {
+            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                window.rootViewController = loginVC
+            }, completion: nil)
+        }
+    }
+    
+    // MARK: - Public Methods
+    func updateProfileAvatar(_ image: UIImage) {
+        print("🎉 Updating profile avatar with new image")
+        profileAvatarView.setAvatarImage(image)
+        saveImageToDocuments(image)
+        
+        // Показываем подтверждение
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let alert = UIAlertController(
+                title: "Success!",
+                message: "Profile photo has been updated",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true)
+        }
     }
     
     // MARK: - Account Type Management
@@ -345,28 +396,61 @@ extension AccountViewController: PasswordPopupDelegate {
 
 // MARK: - ChangePhotoPopupDelegate
 extension AccountViewController: ChangePhotoPopupDelegate {
+    func didSelectImage(_ image: UIImage) {
+        print("🎉 AccountViewController: Setting new avatar image - \(image.size)")
+        
+        // Устанавливаем фото СРАЗУ
+        profileAvatarView.setAvatarImage(image)
+        
+        // Принудительно обновляем интерфейс
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
+        }
+        
+        // Сохраняем фото
+        saveImageToDocuments(image)
+        
+        // Показываем визуальное подтверждение
+        showPhotoUpdateSuccess()
+        
+        print("✅ Avatar updated successfully!")
+    }
+    
+    private func showPhotoUpdateSuccess() {
+        let alert = UIAlertController(
+            title: "Success!",
+            message: "Profile photo has been updated",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
     func didSelectTakePhoto() {
-        print("Take photo selected")
         requestCameraAccess()
     }
     
     func didSelectChooseFromFile() {
-        print("Choose from file selected")
-        // Image picker будет показан автоматически из ChangePhotoPopupViewController
+        // Не нужно ничего делать - фото обрабатывается в didSelectImage
     }
     
     func didSelectDeletePhoto() {
-        print("Delete photo selected")
-        // Удаляем фото аватара
         profileAvatarView.setAvatarImage(nil)
+        deleteImageFromDocuments()
     }
     
-    func didSelectImage(_ image: UIImage) {
-        // Обрабатываем выбранное изображение
-        profileAvatarView.setAvatarImage(image)
-        print("Image selected: \(image.size)")
-        // Здесь можно сохранить изображение в UserDefaults, Keychain или отправить на сервер
-        saveImageToDocuments(image)
+    private func deleteImageFromDocuments() {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileURL = documentsDirectory.appendingPathComponent("profile_avatar.jpg")
+        
+        do {
+            if FileManager.default.fileExists(atPath: fileURL.path) {
+                try FileManager.default.removeItem(at: fileURL)
+                print("✅ Image deleted from documents")
+            }
+        } catch {
+            print("❌ Error deleting image: \(error)")
+        }
     }
 }
 
