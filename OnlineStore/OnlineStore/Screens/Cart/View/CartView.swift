@@ -3,6 +3,8 @@ import SnapKit
 
 class CartView: UIView {
     
+    var onPaymentButtonTapped: (() -> Void)?
+    
     // MARK: - UI Elements
     
     let deliveryLabel: UILabel = {
@@ -57,13 +59,14 @@ class CartView: UIView {
         return label
     }()
     
-    let paymentButton: UIButton = {
+    private lazy var paymentButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .systemBlue
         button.setTitle("Go to payment", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         button.layer.cornerRadius = 8
+        button.addTarget(self, action: #selector(paymentButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -156,6 +159,15 @@ class CartView: UIView {
     func updateTotalPrice(_ price: String) {
         totalPriceLabel.text = price
     }
+    
+    @objc private func paymentButtonTapped() {
+        onPaymentButtonTapped?()
+    }
+    
+    func setPaymentButton(enabled: Bool) {
+         paymentButton.isEnabled = enabled
+         paymentButton.alpha = enabled ? 1.0 : 0.5 
+     }
 }
 
 extension CartView: UITableViewDelegate, UITableViewDataSource {

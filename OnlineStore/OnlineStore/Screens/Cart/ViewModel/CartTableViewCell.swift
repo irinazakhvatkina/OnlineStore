@@ -8,6 +8,8 @@ protocol CartTableViewCellDelegate: AnyObject {
     func didTapPlus(in cell: CartTableViewCell)
     func didTapMinus(in cell: CartTableViewCell)
     func didToggleCheckbox(in cell: CartTableViewCell, isSelected: Bool)
+    func didTapDelete(in cell: CartTableViewCell)
+
 }
 
 // MARK: - CartTableViewCell
@@ -85,6 +87,20 @@ class CartTableViewCell: UITableViewCell {
         button.tintColor = .lightGray
         return button
     }()
+    
+    private let deleteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "trash"), for: .normal)
+        button.tintColor = .lightGray
+        return button
+    }()
+
+    private let buttonStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.spacing = 10
+        return stack
+    }()
 
     // MARK: - Init
     
@@ -114,9 +130,13 @@ class CartTableViewCell: UITableViewCell {
         containerView.addSubview(titleLabel)
         containerView.addSubview(variantLabel)
         containerView.addSubview(priceLabel)
-        containerView.addSubview(quantityLabel)
-        containerView.addSubview(plusButton)
-        containerView.addSubview(minusButton)
+        containerView.addSubview(buttonStackView)
+        buttonStackView.addArrangedSubview(minusButton)
+        buttonStackView.addArrangedSubview(quantityLabel)
+        buttonStackView.addArrangedSubview(plusButton)
+        buttonStackView.addArrangedSubview(deleteButton)
+        
+       
     }
 
     private func setupConstraints() {
@@ -151,22 +171,22 @@ class CartTableViewCell: UITableViewCell {
             make.bottom.equalTo(productImageView.snp.bottom)
             make.leading.equalTo(titleLabel)
         }
+        
+        buttonStackView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(10)
+            make.bottom.equalToSuperview().inset(20)
+        }
+
+        deleteButton.snp.makeConstraints { make in
+            make.width.height.equalTo(14)
+        }
 
         plusButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(8)
-            make.bottom.equalTo(priceLabel)
-            make.width.height.equalTo(28)
+            make.width.height.equalTo(14)
         }
-
-        quantityLabel.snp.makeConstraints { make in
-            make.centerY.equalTo(plusButton)
-            make.trailing.equalTo(plusButton.snp.leading).offset(-8)
-        }
-
-        minusButton.snp.makeConstraints { make in
-            make.centerY.equalTo(plusButton)
-            make.trailing.equalTo(quantityLabel.snp.leading).offset(-8)
-            make.width.height.equalTo(28)
+        
+        minusButton.snp.remakeConstraints { make in
+            make.width.height.equalTo(14)
         }
 
         DispatchQueue.main.async { [weak self] in
@@ -182,6 +202,8 @@ class CartTableViewCell: UITableViewCell {
         plusButton.addTarget(self, action: #selector(plusTapped), for: .touchUpInside)
         minusButton.addTarget(self, action: #selector(minusTapped), for: .touchUpInside)
         checkboxButton.addTarget(self, action: #selector(checkboxTapped), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+
     }
 
     // MARK: - Actions
@@ -192,6 +214,10 @@ class CartTableViewCell: UITableViewCell {
 
     @objc private func minusTapped() {
         delegate?.didTapMinus(in: self)
+    }
+    
+    @objc private func deleteTapped() {
+        delegate?.didTapDelete(in: self)
     }
 
     @objc private func checkboxTapped() {
