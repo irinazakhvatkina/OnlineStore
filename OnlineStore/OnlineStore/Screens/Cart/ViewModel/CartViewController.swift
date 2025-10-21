@@ -45,7 +45,7 @@ class CartViewController: UIViewController {
         super.viewDidLoad()
         title = "Cart"
         view.backgroundColor = .white
-        cartItems = CartManager.shared.allItems()
+        cartItems = CoreDataManager.shared.fetchCartItems()
 
         setupTableView()
         setupEmptyCartLabel()
@@ -126,7 +126,7 @@ class CartViewController: UIViewController {
     }
     
     private func loadCartItems() {
-        cartItems = CartManager.shared.allItems()
+        cartItems = CoreDataManager.shared.fetchCartItems()
         mainView.updateItems(cartItems)
     }
     
@@ -214,7 +214,7 @@ extension CartViewController: CartTableViewCellDelegate {
     func didTapDelete(in cell: CartTableViewCell) {
         guard let indexPath = mainView.tableView.indexPath(for: cell) else { return }
         let item = cartItems[indexPath.row]
-        CartManager.shared.remove(item.product)
+        CoreDataManager.shared.deleteCartItem(id: "\(item.product.id)")
         cartItems.remove(at: indexPath.row)
         selectedIndexes.remove(indexPath.row)
         mainView.tableView.deleteRows(at: [indexPath], with: .automatic)

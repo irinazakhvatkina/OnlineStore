@@ -145,8 +145,8 @@ class WishlistCell: UICollectionViewCell {
     @objc private func addToCartTapped() {
         guard let product = product else { return }
         
-        if !CartManager.shared.contains(product) {
-            CartManager.shared.add(product)
+        if !CoreDataManager.shared.containsCartItem(product) {
+            CoreDataManager.shared.addCartItem(product)
             addButton.setTitle("In Cart", for: .normal)
             addButton.backgroundColor = UIColor.gray
             addButton.isUserInteractionEnabled = false
@@ -171,7 +171,7 @@ class WishlistCell: UICollectionViewCell {
     }
     
     func updateAddToCartButtonState(for product: Product) {
-        let isProductInCart = CartManager.shared.contains(product)
+        let isProductInCart = CoreDataManager.shared.containsCartItem(product)
         
         if isProductInCart {
             addButton.setTitle("In Cart", for: .normal)

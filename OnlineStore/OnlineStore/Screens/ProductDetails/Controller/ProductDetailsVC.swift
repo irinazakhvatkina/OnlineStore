@@ -55,7 +55,7 @@ class ProductDetailsVC: UIViewController {
     }
 
     private func setupRightButton() {
-        cartView.updateCount(CartManager.shared.itemsCount)
+        cartView.updateCount(CoreDataManager.shared.itemsCount)
         cartView.onTap = { [weak self] in
             self?.goToCart()
         }
@@ -88,10 +88,10 @@ class ProductDetailsVC: UIViewController {
 
 
     @objc private func addToCartTapped() {
-        if !CartManager.shared.contains(product) {
-            CartManager.shared.add(product)
-            cartView.updateCount(CartManager.shared.itemsCount)
-            NotificationCenter.default.post(name: .cartUpdated, object: nil)
+        if !CoreDataManager.shared.containsCartItem(product) {
+            CoreDataManager.shared.addCartItem(product)
+            
+            cartView.updateCount(CoreDataManager.shared.itemsCount)
             showToast(message: "Item added to cart")
         } else {
             showToast(message: "This item is already in the cart")
@@ -99,13 +99,11 @@ class ProductDetailsVC: UIViewController {
     }
 
     @objc private func buyNowTapped() {
-        if !CartManager.shared.contains(product) {
-            CartManager.shared.add(product)
+        if !CoreDataManager.shared.containsCartItem(product) {
+            CoreDataManager.shared.addCartItem(product)
         }
         
-        NotificationCenter.default.post(name: .cartUpdated, object: nil)
-        
-        let allItems = CartManager.shared.allItems()
+        let allItems = CoreDataManager.shared.fetchCartItems()
         if let index = allItems.firstIndex(where: { $0.product.id == product.id }) {
             let cartVC = CartViewController(selectedIndex: index)
             navigationController?.pushViewController(cartVC, animated: true)
@@ -119,7 +117,7 @@ class ProductDetailsVC: UIViewController {
     }
 
     @objc private func cartUpdated() {
-        let itemsCount = CartManager.shared.itemsCount
+        let itemsCount = CoreDataManager.shared.itemsCount
         cartView.updateCount(itemsCount)
     }
 

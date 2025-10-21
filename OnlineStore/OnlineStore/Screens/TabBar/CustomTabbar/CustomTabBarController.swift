@@ -26,7 +26,7 @@ class CustomTabBarController: UITabBarController {
                                        image: UIImage.wishlistInactive,
                                        selectedImage: UIImage.wishlistActive.withRenderingMode(.alwaysOriginal))
 
-        let mvc = PaymentViewController()//ManagerViewController()
+        let mvc = ManagerViewController()
         let mNav = UINavigationController(rootViewController: mvc)
         mNav.tabBarItem = UITabBarItem(title: "Manager",
                                        image: UIImage.paperInactive,

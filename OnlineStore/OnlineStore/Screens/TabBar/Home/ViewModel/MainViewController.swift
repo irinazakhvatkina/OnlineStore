@@ -108,7 +108,7 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
     }
 
     private func configureCartButton() {
-        let itemsCount = CartManager.shared.itemsCount
+        let itemsCount = CoreDataManager.shared.itemsCount
         cartButton.updateCount(itemsCount)
         cartButton.onTap = { [weak self] in
             guard let self = self else { return }
@@ -254,7 +254,7 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
     }
     
     @objc private func cartUpdated() {
-        let itemsCount = CartManager.shared.itemsCount
+        let itemsCount = CoreDataManager.shared.itemsCount
         cartButton.updateCount(itemsCount)
         productsCollectionView.reloadData()
 
@@ -311,7 +311,7 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
                 return UICollectionViewCell()
             }
             let product = filteredProducts[indexPath.item]
-            let isProductInCart = CartManager.shared.contains(product)
+            let isProductInCart = CoreDataManager.shared.containsCartItem(product)
             
             let currencyCode = selectedCountry?.currencyCode ?? "USD"
             cell.configure(with: product, isProductInCart: isProductInCart, selectedCurrency: currencyCode)
@@ -361,9 +361,10 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
     // MARK: - Cart & Details
 
     private func addToCart(_ product: Product) {
-        if !CartManager.shared.contains(product) {
-            CartManager.shared.add(product)
-            cartButton.updateCount(CartManager.shared.itemsCount)
+        if !CoreDataManager.shared.containsCartItem(product) {
+            CoreDataManager.shared.addCartItem(product)
+            
+            cartButton.updateCount(CoreDataManager.shared.itemsCount)
             showToast(message: "Item added to cart")
         } else {
             showToast(message: "This item is already in the cart")

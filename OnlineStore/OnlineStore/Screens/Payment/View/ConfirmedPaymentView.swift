@@ -54,7 +54,7 @@ final class ConfirmedPaymentView: UIView {
         return lbl
     }()
     
-    private let pdfView: UIView = {
+     let pdfView: UIView = {
         let v = UIView()
         v.layer.cornerRadius = 10
         v.layer.borderWidth = 1

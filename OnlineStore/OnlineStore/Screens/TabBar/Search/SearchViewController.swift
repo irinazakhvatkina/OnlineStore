@@ -63,6 +63,12 @@ final class SearchViewController: UIViewController, UISearchBarDelegate {
         loadSearchHistory()
         NotificationCenter.default.addObserver(self, selector: #selector(currencyChanged(_:)), name: .currencyDidChange, object: nil)
 
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(searchHistoryUpdated),
+            name: .searchQueriesUpdated,
+            object: nil
+        )
     }
 
     // MARK: - Setup
@@ -112,6 +118,24 @@ final class SearchViewController: UIViewController, UISearchBarDelegate {
             make.top.equalTo(searchBar.snp.bottom).offset(10)
             make.left.right.bottom.equalToSuperview()
         }
+    }
+    
+    private func loadSearchHistory() {
+        searchHistory = CoreDataManager.shared.fetchQueries()
+        tableView.reloadData()
+    }
+    
+    private func addToHistory(_ query: String) {
+        if let existing = searchHistory.first(where: { $0 == query }) {
+            CoreDataManager.shared.deleteQuery(by: existing)
+        }
+        CoreDataManager.shared.addQuery(query)
+
+        loadSearchHistory()
+    }
+    
+    @objc private func searchHistoryUpdated() {
+        loadSearchHistory()
     }
 
     private func setupGestureToHideKeyboard() {
@@ -167,28 +191,6 @@ final class SearchViewController: UIViewController, UISearchBarDelegate {
         }
     }
 
-
-    private func addToHistory(_ query: String) {
-        if let index = searchHistory.firstIndex(of: query) {
-            searchHistory.remove(at: index)
-        }
-        searchHistory.insert(query, at: 0)
-        if searchHistory.count > 10 {
-            searchHistory.removeLast()
-        }
-        saveSearchHistory()
-    }
-
-
-    private func loadSearchHistory() {
-        if let savedHistory = UserDefaults.standard.array(forKey: "searchHistory") as? [String] {
-            searchHistory = savedHistory
-        }
-    }
-
-    private func saveSearchHistory() {
-        UserDefaults.standard.set(searchHistory, forKey: "searchHistory")
-    }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let query = searchBar.text, !query.isEmpty else { return }
@@ -264,10 +266,8 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
                 let cell = tableView.dequeueReusableCell(withIdentifier: SearchHistoryCell.identifier, for: indexPath) as! SearchHistoryCell
                 let query = searchHistory[indexPath.row]
                 cell.configure(with: query)
-                cell.onDeleteTapped = { [weak self] in
-                    self?.searchHistory.remove(at: indexPath.row)
-                    self?.saveSearchHistory()
-                    self?.tableView.reloadData()
+                cell.onDeleteTapped = {
+                    CoreDataManager.shared.deleteQuery(by: query)
                 }
                 return cell
             }
@@ -297,9 +297,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
             }
             if indexPath.row == searchHistory.count {
                 // clean history
-                searchHistory.removeAll()
-                saveSearchHistory()
-                tableView.reloadData()
+                CoreDataManager.shared.clearAllQueries()
             } else {
                 let selectedQuery = searchHistory[indexPath.row]
                 searchBar.text = selectedQuery
@@ -317,8 +315,9 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         guard isShowingHistory, !searchHistory.isEmpty, indexPath.row < searchHistory.count else { return nil }
 
         let delete = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completion in
-            self?.searchHistory.remove(at: indexPath.row)
-            self?.saveSearchHistory()
+            
+            CoreDataManager.shared.deleteQuery(by: self!.searchHistory[indexPath.row])
+            
             tableView.deleteRows(at: [indexPath], with: .automatic)
             completion(true)
         }
@@ -337,12 +336,12 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCell.identifier, for: indexPath) as! ProductCell
         let product = searchResults[indexPath.item]
-        let isInCart = CartManager.shared.contains(product)
+        let isInCart = CoreDataManager.shared.containsCartItem(product)
         cell.configure(with: product, isProductInCart: isInCart, selectedCurrency: selectedCurrency)
         cell.onAddToCart = { [weak self] in
             guard let self = self else { return }
-            if !CartManager.shared.contains(product) {
-                CartManager.shared.add(product)
+            if !CoreDataManager.shared.containsCartItem(product) {
+                CoreDataManager.shared.addCartItem(product)
                 collectionView.reloadItems(at: [indexPath])
                 NotificationCenter.default.post(name: .cartUpdated, object: nil)
                 self.showToast(message: "Item added to cart")
