@@ -4,7 +4,6 @@
 //
 //  Created by Administration  on 29/09/25.
 //
-
 import UIKit
 
 class CustomTabBarController: UITabBarController {
@@ -54,10 +53,13 @@ class CustomTabBarController: UITabBarController {
             let newIsManagerMode = self.isManagerMode
 
             if !oldIsManagerMode && newIsManagerMode {
+                // Переход из клиента в менеджера - выбираем вкладку менеджера (индекс 2)
                 self.selectedIndex = 2
             } else if oldIsManagerMode && !newIsManagerMode {
+                // Переход из менеджера в клиента - выбираем последнюю вкладку
                 self.selectedIndex = maxIndex
             } else {
+                // Сохранение текущей вкладки
                 let currentIndex = self.selectedIndex
                 if currentIndex <= maxIndex {
                     self.selectedIndex = currentIndex

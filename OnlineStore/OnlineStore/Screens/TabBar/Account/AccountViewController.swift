@@ -261,6 +261,15 @@ class AccountViewController: UIViewController {
         popupVC.modalTransitionStyle = .crossDissolve
         present(popupVC, animated: true)
     }
+    
+    // MARK: - Password Popup
+    private func showPasswordPopupForManager() {
+        let passwordPopup = PasswordPopupViewController()
+        passwordPopup.delegate = self
+        passwordPopup.modalPresentationStyle = .overFullScreen
+        passwordPopup.modalTransitionStyle = .crossDissolve
+        present(passwordPopup, animated: true)
+    }
 }
 
 // MARK: - ProfileAvatarViewDelegate
@@ -277,7 +286,60 @@ extension AccountViewController: ProfileAvatarViewDelegate {
 // MARK: - AccountTypePopupDelegate
 extension AccountViewController: AccountTypePopupDelegate {
     func didSelectAccountType(_ type: AccountType) {
+        // Для клиента - просто сохраняем
         saveAccountType(type)
+    }
+    
+    func didSelectManagerWithPassword() {
+        // Показываем попап с паролем для менеджера
+        showPasswordPopupForManager()
+    }
+}
+
+// MARK: - PasswordPopupDelegate
+extension AccountViewController: PasswordPopupDelegate {
+    func didEnterCorrectPassword() {
+        // Пароль верный - сохраняем тип менеджера и переходим на вкладку менеджера
+        saveAccountType(.manager)
+        
+        // Автоматически переходим на вкладку менеджера
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.switchToManagerTab()
+        }
+    }
+    
+    func didCancelPasswordEntry() {
+        // Пользователь отменил ввод пароля - ничего не делаем
+        print("Password entry cancelled")
+    }
+    
+    private func switchToManagerTab() {
+        // Находим TabBarController и переключаемся на вкладку менеджера
+        if let tabBarController = self.tabBarController as? CustomTabBarController {
+            // В CustomTabBarController менеджерская вкладка имеет индекс 2
+            tabBarController.selectedIndex = 2
+            
+            // Показываем сообщение о успешном переходе
+            showManagerWelcomeMessage()
+        } else if let tabBarController = self.tabBarController {
+            // Для стандартного TabBarController ищем вкладку менеджера
+            if let viewControllers = tabBarController.viewControllers,
+               viewControllers.count > 2 {
+                tabBarController.selectedIndex = 2
+                showManagerWelcomeMessage()
+            }
+        }
+    }
+    
+    private func showManagerWelcomeMessage() {
+        let alert = UIAlertController(
+            title: "Welcome Manager!",
+            message: "You now have access to manager features and dashboard.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true)
     }
 }
 

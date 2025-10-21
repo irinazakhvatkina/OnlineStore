@@ -9,6 +9,7 @@ import UIKit
 
 protocol AccountTypePopupDelegate: AnyObject {
     func didSelectAccountType(_ type: AccountType)
+    func didSelectManagerWithPassword()
 }
 
 class AccountTypePopupViewController: UIViewController {
@@ -123,8 +124,10 @@ class AccountTypePopupViewController: UIViewController {
     }
     
     @objc private func managerButtonTapped() {
-        delegate?.didSelectAccountType(.manager)
-        dismiss(animated: true)
+        // Вместо непосредственного переключения, запрашиваем пароль
+        dismiss(animated: true) { [weak self] in
+            self?.delegate?.didSelectManagerWithPassword()
+        }
     }
     
     @objc private func handleTapOutside(_ gesture: UITapGestureRecognizer) {
