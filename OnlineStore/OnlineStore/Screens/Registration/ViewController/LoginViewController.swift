@@ -81,7 +81,7 @@ class LoginViewController: UIViewController {
     private func setupConstraints() {
         // Логотип
         logoSquareView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
+            make.centerX.equalToSuperview().offset(-10)
             make.top.equalTo(view.safeAreaLayoutGuide).offset(50)
         }
         

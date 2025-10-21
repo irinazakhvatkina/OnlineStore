@@ -5,26 +5,22 @@
 //  Created by Zarina Sadykova on 31.08.25.
 //
 import UIKit
-import SnapKit
 
 class RegistrationViewController: UIViewController {
     
     // MARK: - UI Elements
-    private let spoonsImageView = UIImageView()
-    private let fullTextLabel = UILabel()
+    private let titleLabel = UILabel()
+    private let subtitleLabel = UILabel()
+    private let accountTypeButton = AccountTypeButton()
     private var textFields: [TextInputView] = []
     
     private let signUpButton = CustomButton(title: "Sign Up", cornerRadius: 10)
     private let alreadyHaveAccountLabel = UILabel()
     
-    // Конфигурация полей
+    // Конфигурация полей (убрал Last Name)
     private let fieldConfigs: [RegistrationFieldConfig] = [
         RegistrationFieldConfig(title: "First Name",
                                 placeholder: "Enter your first name",
-                                isSecure: false,
-                                keyboardType: .default),
-        RegistrationFieldConfig(title: "Last Name",
-                                placeholder: "Enter your last name",
                                 isSecure: false,
                                 keyboardType: .default),
         RegistrationFieldConfig(title: "E-mail",
@@ -45,10 +41,9 @@ class RegistrationViewController: UIViewController {
     private func autofillMockUser() {
         guard textFields.count == fieldConfigs.count else { return }
         textFields[0].text = MockUser.firstName
-        textFields[1].text = MockUser.lastName
-        textFields[2].text = MockUser.email
-        textFields[3].text = MockUser.password
-        textFields[4].text = MockUser.password // confirm
+        textFields[1].text = MockUser.email
+        textFields[2].text = MockUser.password
+        textFields[3].text = MockUser.password // confirm
     }
     
     // MARK: - Lifecycle
@@ -57,6 +52,7 @@ class RegistrationViewController: UIViewController {
         setupUI()
         setupConstraints()
         setupLoginTapGesture()
+        setupAccountTypeButtonAction()
         autofillMockUser()
     }
     
@@ -64,17 +60,23 @@ class RegistrationViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .white
         
-        // Картинка
-        spoonsImageView.image = UIImage(named: "Spoons")
-        spoonsImageView.contentMode = .scaleAspectFit
-        view.addSubview(spoonsImageView)
+        // Заголовок
+        titleLabel.text = "Sign Up"
+        titleLabel.textColor = .mainTitlesDark
+        titleLabel.font = UIFont(name: FontNames.semiBold_18pt, size: 38)
+        titleLabel.textAlignment = .left
+        view.addSubview(titleLabel)
         
-        // Текст
-        fullTextLabel.text = "Create your account\nexplore best recipes"
-        fullTextLabel.textColor = .white
-        fullTextLabel.font = UIFont(name: FontNames.semiBold_18pt, size: 28)
-        fullTextLabel.numberOfLines = 2
-        spoonsImageView.addSubview(fullTextLabel)
+        // Подзаголовок
+        subtitleLabel.text = "Complete your account"
+        subtitleLabel.textColor = .mainTitlesDark
+        subtitleLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+        subtitleLabel.textAlignment = .left
+        view.addSubview(subtitleLabel)
+        
+        // Кнопка выбора типа аккаунта
+        accountTypeButton.configure(title: "Type of account")
+        view.addSubview(accountTypeButton)
         
         // Поля по конфигу
         for config in fieldConfigs {
@@ -91,12 +93,16 @@ class RegistrationViewController: UIViewController {
             textFields.append(textField)
         }
         
-        // Кнопка
+        // Кнопка регистрации
         signUpButton.backgroundColor = .buttonLightBlue
         signUpButton.addTarget(self, action: #selector(signUpButtonTapped), for: .touchUpInside)
         view.addSubview(signUpButton)
         
         setupAlreadyHaveAccountText()
+    }
+    
+    private func setupAccountTypeButtonAction() {
+        accountTypeButton.addTarget(self, action: #selector(accountTypeButtonTapped), for: .touchUpInside)
     }
     
     private func setupAlreadyHaveAccountText() {
@@ -105,19 +111,14 @@ class RegistrationViewController: UIViewController {
         
         if let loginRange = fullText.range(of: "Login") {
             let nsRange = NSRange(loginRange, in: fullText)
-            attributedString.addAttribute(.foregroundColor, value: UIColor.primaryBlue, range: nsRange) // ← ИСПРАВЬТЕ ЦВЕТ
-            if let font = UIFont(name: FontNames.regular_18pt, size: 14) {
+            attributedString.addAttribute(.foregroundColor, value: UIColor.primaryBlue, range: nsRange)
+            if let font = UIFont(name: FontNames.regular_18pt, size: 32) {
                 attributedString.addAttribute(.font, value: font, range: nsRange)
             } else {
-                attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 14, weight: .medium), range: nsRange)
+                attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 18, weight: .medium), range: nsRange)
             }
         }
-        
-        // Базовый стиль для всего текста
-        let fullRange = NSRange(location: 0, length: fullText.count)
-        attributedString.addAttribute(.foregroundColor, value: UIColor.systemGray, range: NSRange(location: 0, length: fullText.count - 5))
-        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 14), range: fullRange)
-        
+
         alreadyHaveAccountLabel.attributedText = attributedString
         alreadyHaveAccountLabel.textAlignment = .center
         alreadyHaveAccountLabel.isUserInteractionEnabled = true
@@ -131,23 +132,21 @@ class RegistrationViewController: UIViewController {
     
     // MARK: - Constraints
     private func setupConstraints() {
-        spoonsImageView.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.leading.equalToSuperview().offset(-20)
-            make.width.equalTo(482)
-            make.height.equalTo(187)
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(20)
+            make.centerX.equalToSuperview()
         }
         
-        fullTextLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(80)
-            make.centerY.equalToSuperview().offset(50)
+        subtitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(50)
+            make.centerX.equalToSuperview()
         }
         
-        // Поля
-        var previous: UIView = spoonsImageView
+        // Поля - УВЕЛИЧЕННЫЕ ОТСТУПЫ
+        var previous: UIView = subtitleLabel
         for (index, textField) in textFields.enumerated() {
             textField.snp.makeConstraints { make in
-                make.top.equalTo(previous.snp.bottom).offset(index == 0 ? 80 : 40)
+                make.top.equalTo(previous.snp.bottom).offset(index == 0 ? 50 : 50)
                 make.centerX.equalToSuperview()
                 make.width.equalTo(335)
                 make.height.equalTo(45)
@@ -155,30 +154,37 @@ class RegistrationViewController: UIViewController {
             previous = textField
         }
         
-        // Кнопка
+        // Кнопка выбора типа аккаунта
+        accountTypeButton.snp.makeConstraints { make in
+            make.top.equalTo(previous.snp.bottom).offset(50)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(335)
+            make.height.equalTo(45)
+        }
+        
+        // Кнопка регистрации
         signUpButton.snp.makeConstraints { make in
-            make.top.equalTo(previous.snp.bottom).offset(40)
+            make.top.equalTo(accountTypeButton.snp.bottom).offset(50)
             make.centerX.equalToSuperview()
             make.width.equalTo(335)
             make.height.equalTo(56)
         }
         
         alreadyHaveAccountLabel.snp.makeConstraints { make in
-            make.top.equalTo(signUpButton.snp.bottom).offset(30)
+            make.top.equalTo(signUpButton.snp.bottom).offset(20)
             make.centerX.equalToSuperview()
         }
     }
     
-    private func resetFieldBorders() {
-        textFields.forEach { $0.outlineColor = .systemGray4 }
-    }
-    
-    private func highlightErrorField(at index: Int) {
-        guard index < textFields.count else { return }
-        textFields[index].outlineColor = .red
-    }
-    
     // MARK: - Actions
+    @objc private func accountTypeButtonTapped() {
+        let popupVC = AccountTypePopupViewController()
+        popupVC.delegate = self
+        popupVC.modalPresentationStyle = .overFullScreen
+        popupVC.modalTransitionStyle = .crossDissolve
+        present(popupVC, animated: true)
+    }
+    
     @objc private func signUpButtonTapped() {
         let values = textFields.map { $0.text ?? "" }
         let titles = fieldConfigs.map { $0.title }
@@ -200,7 +206,6 @@ class RegistrationViewController: UIViewController {
         )
         
         alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
-            // Закрываем текущий экран регистрации и возвращаемся на логин
             self?.dismiss(animated: true)
         })
         
@@ -214,6 +219,41 @@ class RegistrationViewController: UIViewController {
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+}
+
+// MARK: - AccountTypePopupDelegate
+extension RegistrationViewController: AccountTypePopupDelegate {
+    func didSelectAccountType(_ type: AccountType) {
+        accountTypeButton.configure(title: "Type of account")
+    }
+    
+    func didSelectManagerWithPassword() {
+        showManagerPasswordAlert()
+    }
+    
+    private func showManagerPasswordAlert() {
+        let alert = UIAlertController(
+            title: "Manager Access",
+            message: "Enter manager password:",
+            preferredStyle: .alert
+        )
+        
+        alert.addTextField { textField in
+            textField.placeholder = "Password"
+            textField.isSecureTextEntry = true
+        }
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Confirm", style: .default) { [weak self] _ in
+            if let password = alert.textFields?.first?.text, password == "manager123" {
+                self?.accountTypeButton.configure(title: "Type of account")
+            } else {
+                self?.showAlert(message: "Invalid manager password")
+            }
+        })
+        
         present(alert, animated: true)
     }
 }
