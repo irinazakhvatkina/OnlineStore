@@ -7,6 +7,8 @@
 
 // AccountViewController.swift
 import UIKit
+import PhotosUI
+import AVFoundation
 import DesignPackage
 
 class AccountViewController: UIViewController {
@@ -91,13 +93,19 @@ class AccountViewController: UIViewController {
         }
     }
     
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupConstraints()
         setupActions()
         loadAccountType()
+        loadSavedAvatar()
+    }
+
+    private func loadSavedAvatar() {
+        if let savedImage = loadImageFromDocuments() {
+            profileAvatarView.setAvatarImage(savedImage)
+        }
     }
     
     // MARK: - Setup
@@ -277,16 +285,126 @@ extension AccountViewController: AccountTypePopupDelegate {
 extension AccountViewController: ChangePhotoPopupDelegate {
     func didSelectTakePhoto() {
         print("Take photo selected")
-        // TODO: Implement camera access
+        requestCameraAccess()
     }
     
     func didSelectChooseFromFile() {
         print("Choose from file selected")
-        // TODO: Implement photo library access
+        // Image picker будет показан автоматически из ChangePhotoPopupViewController
     }
     
     func didSelectDeletePhoto() {
         print("Delete photo selected")
-        // TODO: Implement delete photo logic
+        // Удаляем фото аватара
+        profileAvatarView.setAvatarImage(nil)
+    }
+    
+    func didSelectImage(_ image: UIImage) {
+        // Обрабатываем выбранное изображение
+        profileAvatarView.setAvatarImage(image)
+        print("Image selected: \(image.size)")
+        // Здесь можно сохранить изображение в UserDefaults, Keychain или отправить на сервер
+        saveImageToDocuments(image)
+    }
+}
+
+// MARK: - Camera Access
+extension AccountViewController {
+    private func requestCameraAccess() {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        
+        switch status {
+        case .authorized:
+            // Доступ уже предоставлен
+            presentCamera()
+        case .notDetermined:
+            // Запрашиваем разрешение
+            AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        self?.presentCamera()
+                    } else {
+                        self?.showCameraDeniedAlert()
+                    }
+                }
+            }
+        case .denied, .restricted:
+            // Доступ запрещен
+            showCameraDeniedAlert()
+        @unknown default:
+            break
+        }
+    }
+    
+    private func presentCamera() {
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.sourceType = .camera
+        imagePicker.cameraCaptureMode = .photo
+        imagePicker.allowsEditing = false
+        
+        present(imagePicker, animated: true)
+    }
+    
+    private func showCameraDeniedAlert() {
+        let alert = UIAlertController(
+            title: "Camera Access Denied",
+            message: "Please enable camera access in Settings to take photos",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Settings", style: .default) { _ in
+            if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsURL)
+            }
+        })
+        
+        present(alert, animated: true)
+    }
+}
+
+/// MARK: - Image Picker Delegates
+extension AccountViewController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+        
+        if let image = info[.originalImage] as? UIImage {
+            // Обрабатываем снимок с камеры
+            profileAvatarView.setAvatarImage(image)
+            // Здесь можно сохранить изображение
+            saveImageToDocuments(image)
+        }
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
+    }
+}
+
+// MARK: - Image Saving
+extension AccountViewController {
+    private func saveImageToDocuments(_ image: UIImage) {
+        guard let data = image.jpegData(compressionQuality: 0.8) else { return }
+        
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileURL = documentsDirectory.appendingPathComponent("profile_avatar.jpg")
+        
+        do {
+            try data.write(to: fileURL)
+            print("Image saved successfully: \(fileURL.path)")
+        } catch {
+            print("Error saving image: \(error)")
+        }
+    }
+    
+    private func loadImageFromDocuments() -> UIImage? {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileURL = documentsDirectory.appendingPathComponent("profile_avatar.jpg")
+        
+        if let imageData = try? Data(contentsOf: fileURL) {
+            return UIImage(data: imageData)
+        }
+        return nil
     }
 }

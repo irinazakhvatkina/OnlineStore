@@ -5,11 +5,13 @@
 //  Created by Zarina Sadykova on 17.10.25.
 //
 import UIKit
+import PhotosUI
 
 protocol ChangePhotoPopupDelegate: AnyObject {
     func didSelectTakePhoto()
     func didSelectChooseFromFile()
     func didSelectDeletePhoto()
+    func didSelectImage(_ image: UIImage)
 }
 
 class ChangePhotoPopupViewController: UIViewController {
@@ -99,12 +101,6 @@ class ChangePhotoPopupViewController: UIViewController {
             make.top.equalTo(titleLabel.snp.bottom).offset(40)
             make.leading.trailing.equalToSuperview().inset(16)
         }
-        
-        // Кнопки используют стандартные размеры из PopupActionButton (296x60)
-        // 3 кнопки × 60pt = 180pt
-        // spacing между кнопками 16pt × 2 = 32pt
-        // Итого: 180pt + 32pt = 212pt для кнопок
-        // Остальное пространство распределено как отступы
     }
     
     private func setupActions() {
@@ -126,7 +122,9 @@ class ChangePhotoPopupViewController: UIViewController {
     
     @objc private func chooseFromFileTapped() {
         delegate?.didSelectChooseFromFile()
-        dismiss(animated: true)
+        dismiss(animated: true) { [weak self] in
+            self?.presentImagePicker()
+        }
     }
     
     @objc private func deletePhotoTapped() {
@@ -140,11 +138,107 @@ class ChangePhotoPopupViewController: UIViewController {
             dismiss(animated: true)
         }
     }
+    
+    // MARK: - Image Picker
+    private func presentImagePicker() {
+        if #available(iOS 14.0, *) {
+            // Используем PHPickerViewController для iOS 14+
+            var configuration = PHPickerConfiguration()
+            configuration.filter = .images
+            configuration.selectionLimit = 1
+            
+            let picker = PHPickerViewController(configuration: configuration)
+            picker.delegate = self
+            present(picker, animated: true)
+        } else {
+            // Используем UIImagePickerController для iOS 13 и ниже
+            let imagePicker = UIImagePickerController()
+            imagePicker.delegate = self
+            imagePicker.sourceType = .photoLibrary
+            imagePicker.allowsEditing = false
+            present(imagePicker, animated: true)
+        }
+    }
+    
+    // MARK: - Camera
+    private func presentCamera() {
+        // Проверяем доступность камеры
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            showErrorAlert(message: "Camera is not available on this device")
+            return
+        }
+        
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.sourceType = .camera
+        imagePicker.cameraCaptureMode = .photo
+        imagePicker.allowsEditing = false
+        
+        present(imagePicker, animated: true)
+    }
+}
+
+// MARK: - PHPickerViewControllerDelegate (iOS 14+)
+@available(iOS 14.0, *)
+extension ChangePhotoPopupViewController: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        
+        guard let result = results.first else { return }
+        
+        result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] (object, error) in
+            if let image = object as? UIImage {
+                DispatchQueue.main.async {
+                    self?.delegate?.didSelectImage(image)
+                }
+            } else if let error = error {
+                print("Error loading image: \(error.localizedDescription)")
+                // Можно показать alert с ошибкой
+                DispatchQueue.main.async {
+                    self?.showErrorAlert(message: "Failed to load image")
+                }
+            }
+        }
+    }
+}
+
+// MARK: - UIImagePickerControllerDelegate & UINavigationControllerDelegate (iOS 13 and below)
+extension ChangePhotoPopupViewController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+        
+        if let image = info[.originalImage] as? UIImage {
+            delegate?.didSelectImage(image)
+        } else {
+            showErrorAlert(message: "Failed to load image")
+        }
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
+    }
 }
 
 // MARK: - UIGestureRecognizerDelegate
 extension ChangePhotoPopupViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         return touch.view == view
+    }
+}
+
+// MARK: - Alert Helper
+extension ChangePhotoPopupViewController {
+    private func showErrorAlert(message: String) {
+        let alert = UIAlertController(
+            title: "Error",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        
+        // Находим верхний представленный контроллер для показа alert
+        if let topController = UIApplication.shared.windows.first?.rootViewController?.presentedViewController {
+            topController.present(alert, animated: true)
+        }
     }
 }
