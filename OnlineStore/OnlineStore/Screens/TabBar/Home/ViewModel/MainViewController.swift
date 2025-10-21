@@ -89,7 +89,11 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         NotificationCenter.default.addObserver(self, selector: #selector(cartUpdated), name: .cartUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(currencyDidChange(_:)), name: .currencyDidChange, object: nil)
     }
-
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        productsCollectionView.reloadData()
+    }
     // MARK: - Setup Methods
 
     private func setupNavigationBar() {

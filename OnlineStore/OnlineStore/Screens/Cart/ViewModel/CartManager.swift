@@ -17,6 +17,8 @@ class CartManager {
             let item = CartItem(product: product, quantity: quantity)
             items.append(item)
         }
+        
+        notifyCartUpdated()
     }
 
     func allItems() -> [CartItem] {
@@ -25,9 +27,21 @@ class CartManager {
 
     func clear() {
         items.removeAll()
+        notifyCartUpdated() 
     }
 
     func contains(_ product: Product) -> Bool {
         return items.contains(where: { $0.product.id == product.id })
+    }
+    
+    func remove(_ product: Product) {
+        if let index = items.firstIndex(where: { $0.product.id == product.id }) {
+            items.remove(at: index)
+            notifyCartUpdated() 
+        }
+    }
+    
+    private func notifyCartUpdated() {
+        NotificationCenter.default.post(name: .cartUpdated, object: nil)
     }
 }

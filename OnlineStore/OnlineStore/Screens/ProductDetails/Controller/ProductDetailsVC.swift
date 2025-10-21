@@ -74,30 +74,18 @@ class ProductDetailsVC: UIViewController {
             WishlistManager.shared.removeFromWishlist(product)
             showToast(message: "Removed from Wishlist")
         }
-        
+
         updateHeartButton()
     }
+
+    
 
 
     private func updateHeartButton() {
         let imageName = isLiked ? "WishlistActive" : "WishlistInactive"
         mainView.returnHeartButton().setImage(UIImage(named: imageName), for: .normal)
-        
-        if isLiked {
-            CoreDataManager.shared.saveProduct(ProductModel(
-                id: String(product.id),
-                name: product.title,
-                price: product.price,
-                description: product.description ?? "",
-                imageUrl: product.images.first ?? "",
-                isFavorite: true
-            ))
-            print("Сохранено: \(product.title)")
-        } else {
-            CoreDataManager.shared.deleteProduct(id: String(product.id))
-            print("Удалено: \(product.title)")
-        }
     }
+
 
     @objc private func addToCartTapped() {
         if !CartManager.shared.contains(product) {

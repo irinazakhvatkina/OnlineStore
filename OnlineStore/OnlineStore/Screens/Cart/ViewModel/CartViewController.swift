@@ -51,6 +51,8 @@ class CartViewController: UIViewController {
         setupEmptyCartLabel()
         setupBackButton()
         updateTotalPrice()
+        setupGoToPaymentButton()
+        updatePaymentButtonState()
         
         if let selectedIndex = selectedIndex {
             selectItem(at: selectedIndex)
@@ -60,6 +62,21 @@ class CartViewController: UIViewController {
     }
 
     // MARK: - Setup UI
+    
+    private func setupGoToPaymentButton() {
+        mainView.onPaymentButtonTapped = { [weak self] in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                let paymentVC = PaymentViewController()
+                self.navigationController?.pushViewController(paymentVC, animated: true)
+            }
+        }
+    }
+    
+    private func updatePaymentButtonState() {
+        let hasSelectedItems = !selectedIndexes.isEmpty
+        mainView.setPaymentButton(enabled: hasSelectedItems)
+    }
     
     private func setupTableView() {
         mainView.tableView.delegate = self
@@ -191,5 +208,19 @@ extension CartViewController: CartTableViewCellDelegate {
             selectedIndexes.remove(indexPath.row)
         }
         updateTotalPrice()
+        updatePaymentButtonState()
     }
+    
+    func didTapDelete(in cell: CartTableViewCell) {
+        guard let indexPath = mainView.tableView.indexPath(for: cell) else { return }
+        let item = cartItems[indexPath.row]
+        CartManager.shared.remove(item.product)
+        cartItems.remove(at: indexPath.row)
+        selectedIndexes.remove(indexPath.row)
+        mainView.tableView.deleteRows(at: [indexPath], with: .automatic)
+        updateTotalPrice()
+        updatePaymentButtonState()
+    }
+
+
 }
