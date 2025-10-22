@@ -15,7 +15,8 @@ Online Store позволяет пользователям просматрив�
 
 - Язык: Swift 
 - Фреймворк: UIKit  
-- Архитектура: MVVM  
+- Архитектура: MVVM
+- Дизайн: Figma - https://www.figma.com/design/7FqxkwIvWJIitcPtVqagVL/OnlineStore--Blue-?node-id=0-1&p=f&t=MplxuqDLEBMxWF7Y-0
 - UI: SnapKit (автолэйауты в коде)  
 - Сетевой слой: API для товаров - https://fakeapi.platzi.com/en/rest/products/, API для валюты - https://openexchangerates.org/account/app-ids/?yep=app_id_updated
 - Локальное хранилище: UserDefaults / Core Data  
