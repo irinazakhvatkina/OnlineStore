@@ -10,39 +10,10 @@
 		2B1976632E9EB4BA006EBB8C /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 2B1976622E9EB4BA006EBB8C /* SDWebImage */; };
 		2B1976652E9EB4C0006EBB8C /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2B1976642E9EB4C0006EBB8C /* SnapKit */; };
 		2B1976672E9EB4C5006EBB8C /* DesignPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 2B1976662E9EB4C5006EBB8C /* DesignPackage */; };
-		2B5ECE472E9131D4000C72D4 /* CartButtonKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B5ECE3F2E9131D4000C72D4 /* CartButtonKit.framework */; };
-		2B5ECE482E9131D4000C72D4 /* CartButtonKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2B5ECE3F2E9131D4000C72D4 /* CartButtonKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		2B5ECEAB2E92570F000C72D4 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2B5ECEAA2E92570F000C72D4 /* SnapKit */; };
-		2B5ECEAD2E925713000C72D4 /* DesignPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 2B5ECEAC2E925713000C72D4 /* DesignPackage */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		2B5ECE452E9131D4000C72D4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2B15C0D42E8A65090046DDCB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2B5ECE3E2E9131D4000C72D4;
-			remoteInfo = CartButtonKit;
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		2B5ECE4C2E9131D4000C72D4 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				2B5ECE482E9131D4000C72D4 /* CartButtonKit.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2B15C0DC2E8A65090046DDCB /* OnlineStore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnlineStore.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		2B5ECE3F2E9131D4000C72D4 /* CartButtonKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CartButtonKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -73,17 +44,7 @@
 			files = (
 				2B1976652E9EB4C0006EBB8C /* SnapKit in Frameworks */,
 				2B1976632E9EB4BA006EBB8C /* SDWebImage in Frameworks */,
-				2B5ECE472E9131D4000C72D4 /* CartButtonKit.framework in Frameworks */,
 				2B1976672E9EB4C5006EBB8C /* DesignPackage in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		2B5ECE3C2E9131D4000C72D4 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2B5ECEAB2E92570F000C72D4 /* SnapKit in Frameworks */,
-				2B5ECEAD2E925713000C72D4 /* DesignPackage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -103,7 +64,6 @@
 			isa = PBXGroup;
 			children = (
 				2B15C0DC2E8A65090046DDCB /* OnlineStore.app */,
-				2B5ECE3F2E9131D4000C72D4 /* CartButtonKit.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -117,16 +77,6 @@
 		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		2B5ECE3A2E9131D4000C72D4 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
 		2B15C0DB2E8A65090046DDCB /* OnlineStore */ = {
 			isa = PBXNativeTarget;
@@ -135,12 +85,10 @@
 				2B15C0D82E8A65090046DDCB /* Sources */,
 				2B15C0D92E8A65090046DDCB /* Frameworks */,
 				2B15C0DA2E8A65090046DDCB /* Resources */,
-				2B5ECE4C2E9131D4000C72D4 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				2B5ECE462E9131D4000C72D4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				2B15C0DE2E8A65090046DDCB /* OnlineStore */,
@@ -155,28 +103,6 @@
 			productReference = 2B15C0DC2E8A65090046DDCB /* OnlineStore.app */;
 			productType = "com.apple.product-type.application";
 		};
-		2B5ECE3E2E9131D4000C72D4 /* CartButtonKit */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 2B5ECE492E9131D4000C72D4 /* Build configuration list for PBXNativeTarget "CartButtonKit" */;
-			buildPhases = (
-				2B5ECE3A2E9131D4000C72D4 /* Headers */,
-				2B5ECE3B2E9131D4000C72D4 /* Sources */,
-				2B5ECE3C2E9131D4000C72D4 /* Frameworks */,
-				2B5ECE3D2E9131D4000C72D4 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = CartButtonKit;
-			packageProductDependencies = (
-				2B5ECEAA2E92570F000C72D4 /* SnapKit */,
-				2B5ECEAC2E925713000C72D4 /* DesignPackage */,
-			);
-			productName = CartButtonKit;
-			productReference = 2B5ECE3F2E9131D4000C72D4 /* CartButtonKit.framework */;
-			productType = "com.apple.product-type.framework";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -188,9 +114,6 @@
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					2B15C0DB2E8A65090046DDCB = {
-						CreatedOnToolsVersion = 16.4;
-					};
-					2B5ECE3E2E9131D4000C72D4 = {
 						CreatedOnToolsVersion = 16.4;
 					};
 				};
@@ -215,20 +138,12 @@
 			projectRoot = "";
 			targets = (
 				2B15C0DB2E8A65090046DDCB /* OnlineStore */,
-				2B5ECE3E2E9131D4000C72D4 /* CartButtonKit */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		2B15C0DA2E8A65090046DDCB /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		2B5ECE3D2E9131D4000C72D4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -245,22 +160,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2B5ECE3B2E9131D4000C72D4 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		2B5ECE462E9131D4000C72D4 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2B5ECE3E2E9131D4000C72D4 /* CartButtonKit */;
-			targetProxy = 2B5ECE452E9131D4000C72D4 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		2B15C0F02E8A650B0046DDCB /* Debug */ = {
@@ -446,84 +346,6 @@
 			};
 			name = Release;
 		};
-		2B5ECE4A2E9131D4000C72D4 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = i.CartButtonKit;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_INSTALL_MODULE = YES;
-				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Debug;
-		};
-		2B5ECE4B2E9131D4000C72D4 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = i.CartButtonKit;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_INSTALL_MODULE = YES;
-				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -541,15 +363,6 @@
 			buildConfigurations = (
 				2B15C0F02E8A650B0046DDCB /* Debug */,
 				2B15C0F12E8A650B0046DDCB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		2B5ECE492E9131D4000C72D4 /* Build configuration list for PBXNativeTarget "CartButtonKit" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				2B5ECE4A2E9131D4000C72D4 /* Debug */,
-				2B5ECE4B2E9131D4000C72D4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -594,16 +407,6 @@
 			productName = SnapKit;
 		};
 		2B1976662E9EB4C5006EBB8C /* DesignPackage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2B0DD0112E8C57B100F49ADC /* XCLocalSwiftPackageReference "../DesignPackage" */;
-			productName = DesignPackage;
-		};
-		2B5ECEAA2E92570F000C72D4 /* SnapKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2B15C1232E8A6FBB0046DDCB /* XCRemoteSwiftPackageReference "SnapKit" */;
-			productName = SnapKit;
-		};
-		2B5ECEAC2E925713000C72D4 /* DesignPackage */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2B0DD0112E8C57B100F49ADC /* XCLocalSwiftPackageReference "../DesignPackage" */;
 			productName = DesignPackage;
