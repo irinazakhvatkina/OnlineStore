@@ -10,6 +10,7 @@ import UIKit
 import PhotosUI
 import AVFoundation
 import DesignPackage
+import SnapKit
 
 class AccountViewController: UIViewController {
     
@@ -33,7 +34,6 @@ class AccountViewController: UIViewController {
         return label
     }()
     
-    // УБРАЛ ДУБЛИРОВАНИЕ - оставил только один profileAvatarView
     private let profileAvatarView: ProfileAvatarView = {
         let view = ProfileAvatarView()
         return view
@@ -281,6 +281,7 @@ class AccountViewController: UIViewController {
     
     private func updateAccountTypeDisplay() {
         let subtitle = currentAccountType == .client ? "Client" : "Manager"
+        // Update your UI here if needed
     }
     
     private func showSuccessMessage() {
@@ -319,7 +320,21 @@ class AccountViewController: UIViewController {
         passwordPopup.delegate = self
         passwordPopup.modalPresentationStyle = .overFullScreen
         passwordPopup.modalTransitionStyle = .crossDissolve
+        
+        // Показываем попап с паролем
         present(passwordPopup, animated: true)
+    }
+    
+    private func switchToManagerTab() {
+        // Находим TabBarController и переключаемся на вкладку менеджера
+        if let tabBarController = self.tabBarController as? CustomTabBarController {
+            tabBarController.selectedIndex = 2
+        } else if let tabBarController = self.tabBarController {
+            if let viewControllers = tabBarController.viewControllers,
+               viewControllers.count > 2 {
+                tabBarController.selectedIndex = 2
+            }
+        }
     }
 }
 
@@ -337,60 +352,34 @@ extension AccountViewController: ProfileAvatarViewDelegate {
 // MARK: - AccountTypePopupDelegate
 extension AccountViewController: AccountTypePopupDelegate {
     func didSelectAccountType(_ type: AccountType) {
-        // Для клиента - просто сохраняем
-        saveAccountType(type)
-    }
-    
-    func didSelectManagerWithPassword() {
-        // Показываем попап с паролем для менеджера
-        showPasswordPopupForManager()
+        if type == .manager {
+            // Для менеджера показываем попап с паролем сразу после закрытия попапа выбора типа
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.showPasswordPopupForManager()
+            }
+        } else {
+            // Для клиента - просто сохраняем
+            saveAccountType(type)
+        }
     }
 }
 
 // MARK: - PasswordPopupDelegate
 extension AccountViewController: PasswordPopupDelegate {
     func didEnterCorrectPassword() {
-        // Пароль верный - сохраняем тип менеджера и переходим на вкладку менеджера
+        // Пароль верный - сохраняем тип менеджера
         saveAccountType(.manager)
         
-        // Автоматически переходим на вкладку менеджера
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        // Переходим на вкладку менеджера только после успешного ввода пароля
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.switchToManagerTab()
         }
     }
     
     func didCancelPasswordEntry() {
-        // Пользователь отменил ввод пароля - ничего не делаем
-        print("Password entry cancelled")
-    }
-    
-    private func switchToManagerTab() {
-        // Находим TabBarController и переключаемся на вкладку менеджера
-        if let tabBarController = self.tabBarController as? CustomTabBarController {
-            // В CustomTabBarController менеджерская вкладка имеет индекс 2
-            tabBarController.selectedIndex = 2
-            
-            // Показываем сообщение о успешном переходе
-            showManagerWelcomeMessage()
-        } else if let tabBarController = self.tabBarController {
-            // Для стандартного TabBarController ищем вкладку менеджера
-            if let viewControllers = tabBarController.viewControllers,
-               viewControllers.count > 2 {
-                tabBarController.selectedIndex = 2
-                showManagerWelcomeMessage()
-            }
-        }
-    }
-    
-    private func showManagerWelcomeMessage() {
-        let alert = UIAlertController(
-            title: "Welcome Manager!",
-            message: "You now have access to manager features and dashboard.",
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        present(alert, animated: true)
+        // Пользователь отменил ввод пароля - остаемся клиентом
+        print("Password entry cancelled - staying as client")
+        saveAccountType(.client)
     }
 }
 
@@ -510,7 +499,7 @@ extension AccountViewController {
     }
 }
 
-/// MARK: - Image Picker Delegates
+// MARK: - Image Picker Delegates
 extension AccountViewController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)

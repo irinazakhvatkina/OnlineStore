@@ -211,13 +211,31 @@ class PasswordPopupViewController: UIViewController {
         }
         
         if enteredPassword == correctPassword {
-            delegate?.didEnterCorrectPassword()
-            dismiss(animated: true)
+            // Показываем успешное сообщение перед закрытием
+            showSuccessMessage()
+            
+            // Даем время увидеть сообщение перед закрытием
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.delegate?.didEnterCorrectPassword()
+                self.dismiss(animated: true)
+            }
         } else {
             showError("Incorrect password. Please try again.")
             passwordTextField.text = ""
             passwordTextField.becomeFirstResponder()
         }
+    }
+
+    private func showSuccessMessage() {
+        // Можно временно изменить цвет кнопки подтверждения на зеленый
+        confirmButton.backgroundColor = .systemGreen
+        confirmButton.setTitle("✓ Access Granted", for: .normal)
+        
+        // Или показать другое визуальное подтверждение
+        let checkmark = UIImageView(image: UIImage(systemName: "checkmark.circle.fill"))
+        checkmark.tintColor = .systemGreen
+        checkmark.frame = CGRect(x: containerView.bounds.midX - 25, y: containerView.bounds.midY - 25, width: 50, height: 50)
+        containerView.addSubview(checkmark)
     }
     
     private func showError(_ message: String) {

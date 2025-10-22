@@ -57,7 +57,7 @@ class CustomTabBarController: UITabBarController {
                 self.selectedIndex = 2
             } else if oldIsManagerMode && !newIsManagerMode {
                 // Переход из менеджера в клиента - выбираем последнюю вкладку
-                self.selectedIndex = maxIndex
+                self.selectedIndex = 3
             } else {
                 // Сохранение текущей вкладки
                 let currentIndex = self.selectedIndex
