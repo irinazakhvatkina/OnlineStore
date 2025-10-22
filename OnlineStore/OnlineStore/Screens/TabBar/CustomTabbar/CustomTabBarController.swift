@@ -13,7 +13,6 @@ class CustomTabBarController: UITabBarController {
         let savedType = UserDefaults.standard.string(forKey: "accountType") ?? "client"
         return savedType == "manager"
     }
-    private var previousIsManagerMode: Bool = false
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -26,7 +25,9 @@ class CustomTabBarController: UITabBarController {
         setupTabs()
         setupNotifications()
         
-        // Устанавливаем начальную вкладку - Account (последний индекс)
+        print("🔍 TabBar loaded with manager mode: \(isManagerMode)")
+        
+        // Устанавливаем начальную вкладку
         setInitialTab()
     }
     
@@ -45,34 +46,20 @@ class CustomTabBarController: UITabBarController {
     }
     
     @objc private func handleAccountTypeChange() {
-        let oldIsManagerMode = previousIsManagerMode
         setupTabs()
-        
-        DispatchQueue.main.async {
-            let maxIndex = (self.viewControllers?.count ?? 1) - 1
-            let newIsManagerMode = self.isManagerMode
-
-            if !oldIsManagerMode && newIsManagerMode {
-                // Переход из клиента в менеджера - выбираем вкладку менеджера (индекс 2)
-                self.selectedIndex = 2
-            } else if oldIsManagerMode && !newIsManagerMode {
-                // Переход из менеджера в клиента - выбираем последнюю вкладку
-                self.selectedIndex = 3
-            } else {
-                // Сохранение текущей вкладки
-                let currentIndex = self.selectedIndex
-                if currentIndex <= maxIndex {
-                    self.selectedIndex = currentIndex
-                } else {
-                    self.selectedIndex = maxIndex
-                }
-            }
-            self.previousIsManagerMode = newIsManagerMode
-        }
+        setInitialTab()
     }
-
+    
     private func setInitialTab() {
-        selectedIndex = (viewControllers?.count ?? 1) - 1
+        if isManagerMode {
+            // Для менеджера выбираем вкладку Manager (индекс 2)
+            selectedIndex = 2
+            print("🔍 Setting initial tab to Manager (index 2)")
+        } else {
+            // Для клиента выбираем вкладку Home (индекс 0)
+            selectedIndex = 0
+            print("🔍 Setting initial tab to Home (index 0)")
+        }
     }
     
     func setupTabs() {
@@ -109,10 +96,13 @@ class CustomTabBarController: UITabBarController {
                                           image: UIImage.paperInactive,
                                           selectedImage: UIImage.paperActive.withRenderingMode(.alwaysOriginal))
             
+            // Порядок вкладок: Home, Wishlist, Manager, Search, Account
             viewControllers = [hvcNav, wvcNav, mvcNav, svcNav, avcNav]
+            print("🔍 Setup 5 tabs for Manager mode")
         } else {
             // Режим клиента - 4 вкладки
             viewControllers = [hvcNav, wvcNav, svcNav, avcNav]
+            print("🔍 Setup 4 tabs for Client mode")
         }
     }
 

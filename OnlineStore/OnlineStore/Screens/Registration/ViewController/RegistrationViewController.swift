@@ -5,7 +5,6 @@
 //  Created by Zarina Sadykova on 31.08.25.
 //
 import UIKit
-import SnapKit
 
 class RegistrationViewController: UIViewController {
     
@@ -17,6 +16,9 @@ class RegistrationViewController: UIViewController {
     
     private let signUpButton = CustomButton(title: "Sign Up", cornerRadius: 10)
     private let alreadyHaveAccountLabel = UILabel()
+    
+    // MARK: - Properties
+    private var selectedAccountType: AccountType = .client
     
     // Конфигурация полей (убрал Last Name)
     private let fieldConfigs: [RegistrationFieldConfig] = [
@@ -195,8 +197,16 @@ class RegistrationViewController: UIViewController {
             return
         }
         
+        // Сохраняем выбранный тип аккаунта
+        saveSelectedAccountType()
+        
         // Показываем успешное сообщение и переходим на логин
         showSuccessAlertAndGoToLogin()
+    }
+    
+    private func saveSelectedAccountType() {
+        UserDefaults.standard.set(selectedAccountType.rawValue, forKey: "accountType")
+        print("💾 Saved account type during registration: \(selectedAccountType.rawValue)")
     }
     
     private func showSuccessAlertAndGoToLogin() {
@@ -227,6 +237,9 @@ class RegistrationViewController: UIViewController {
 // MARK: - AccountTypePopupDelegate
 extension RegistrationViewController: AccountTypePopupDelegate {
     func didSelectAccountType(_ type: AccountType) {
+        // Сохраняем выбранный тип
+        selectedAccountType = type
+        
         // Обновляем кнопку с выбранным типом аккаунта
         accountTypeButton.configure(title: "Type of account", accountType: type)
     }

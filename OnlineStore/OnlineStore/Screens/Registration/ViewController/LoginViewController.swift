@@ -57,11 +57,10 @@ class LoginViewController: UIViewController {
         passwordTextField.backgroundColorType = .screenBackgroundLightGrey
         view.addSubview(passwordTextField)
         
-        // Настройка кнопки Sign In - ДОБАВЬТЕ ЭТО
+        // Настройка кнопки Sign In
         signinButton.backgroundColor = .primaryBlue
         signinButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
         view.addSubview(signinButton)
-        
         
         // Настройка текста "Don't have an account yet?"
         signInQuestionLabel.text = "Don't have an account yet?"
@@ -108,7 +107,6 @@ class LoginViewController: UIViewController {
             make.width.equalTo(335)
             make.height.equalTo(56)
         }
-
         
         // Текст "Don't have an account yet?"
         signInQuestionLabel.snp.makeConstraints { make in
@@ -133,18 +131,29 @@ class LoginViewController: UIViewController {
         
         if login == MockUser.email && password == MockUser.password {
             // Успешный логин - переходим на таббар
-            let tabBarController = CustomTabBarController()
-            
-            // Анимированный переход на таббар
-            if let window = self.view.window {
-                UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
-                    window.rootViewController = tabBarController
-                }, completion: nil)
-            }
+            navigateToMainApp()
         } else if login != MockUser.email {
             showAlert(message: "❌ Invalid email")
         } else {
             showAlert(message: "❌ Invalid password")
+        }
+    }
+    
+    private func navigateToMainApp() {
+        let tabBarController = CustomTabBarController()
+        
+        // Проверяем, является ли пользователь менеджером
+        let savedType = UserDefaults.standard.string(forKey: "accountType") ?? "client"
+        let isManager = savedType == "manager"
+        
+        print("🔍 Login successful - Account type: \(savedType)")
+        print("🔍 Is manager: \(isManager)")
+        
+        // Анимированный переход на таббар
+        if let window = self.view.window {
+            UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                window.rootViewController = tabBarController
+            }, completion: nil)
         }
     }
     
