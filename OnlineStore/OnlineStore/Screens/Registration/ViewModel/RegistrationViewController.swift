@@ -215,11 +215,11 @@ class RegistrationViewController: UIViewController {
             message: "Account created successfully!\nPlease log in with your credentials.",
             preferredStyle: .alert
         )
-        
-        alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
+        let okAction = UIAlertAction(title: "OK", style: .default) { [weak self] _ in
             self?.dismiss(animated: true)
-        })
-        
+        }
+        okAction.setValue(UIColor.black, forKey: "titleTextColor")
+        alert.addAction(okAction)
         present(alert, animated: true)
     }
     

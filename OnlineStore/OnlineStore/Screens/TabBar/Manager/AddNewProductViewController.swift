@@ -46,6 +46,7 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
         setupBackButton() 
         setupUI()
         fetchCategories()
+        setupKeyboardDismissRecognizer()
     }
 
     // MARK: - Setup UI
@@ -173,6 +174,15 @@ class AddNewProductViewController: UIViewController, UIPickerViewDelegate, UIPic
         navigationController?.popViewController(animated: true)
     }
 
+    private func setupKeyboardDismissRecognizer() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false // Позволяет другим тачам (на коллекции и т.д.) обрабатываться
+        view.addGestureRecognizer(tapGesture)
+    }
+
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
 
     // MARK: - Helper methods
     private func createRow(label: UILabel, inputView: UIView, isTextView: Bool = false) -> UIStackView {

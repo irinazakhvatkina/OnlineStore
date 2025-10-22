@@ -36,6 +36,7 @@ class WishlistViewController: UIViewController {
         setupView()
         setupCollectionView()
         setupObservers()
+        setupKeyboardDismissRecognizer()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -71,6 +72,16 @@ class WishlistViewController: UIViewController {
             name: .currencyDidChange,
             object: nil
         )
+    }
+    
+    private func setupKeyboardDismissRecognizer() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false // Позволяет другим тачам (на коллекции и т.д.) обрабатываться
+        view.addGestureRecognizer(tapGesture)
+    }
+
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
 
     // MARK: - Currency Handling
