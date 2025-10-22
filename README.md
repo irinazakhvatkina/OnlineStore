@@ -51,11 +51,11 @@ Online Store позволяет пользователям просматрив�
 
 ## 👥 Команда проекта
 
-| Разработчик | Роль | Задачи |
-|--------------|------|--------|
-| Ирина @irinazakhvatkina
-| Анушервон @AnushervonZaripov
-| Зарина @ZarinaSadykovaQA
+| Разработчик | Github |
+|--------------|------|
+| Ирина | @irinazakhvatkina |
+| Анушервон | @AnushervonZaripov |
+| Зарина | @ZarinaSadykovaQA |
 
 > 💡 Вся работа велась в команде с использованием Git и веточной модели feature/branch.
 
