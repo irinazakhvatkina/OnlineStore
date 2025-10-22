@@ -65,7 +65,7 @@ class UpdateProductViewController: UIViewController, UIPickerViewDelegate, UIPic
         super.viewDidLoad()
         view.backgroundColor = .white
         title = "Update product"
-
+        setupBackButton() 
         setupUI()
         fetchCategories()
     }
@@ -191,6 +191,19 @@ class UpdateProductViewController: UIViewController, UIPickerViewDelegate, UIPic
         categoryPicker.delegate = self
         categoryPicker.dataSource = self
     }
+    
+    private func setupBackButton() {
+        let backButton = UIButton(type: .system)
+        backButton.setImage(UIImage(systemName: "arrow.left"), for: .normal)
+        backButton.tintColor = .mainTitlesDark
+        backButton.addTarget(self, action: #selector(backTapped), for: .touchUpInside)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
+    }
+    
+    @objc private func backTapped() {
+        navigationController?.popViewController(animated: true)
+    }
+
 
     // MARK: - Helper Methods
 
@@ -257,7 +270,9 @@ class UpdateProductViewController: UIViewController, UIPickerViewDelegate, UIPic
 
     private func showAlert(title: String = "Error", message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(.init(title: "OK", style: .default))
+        let okAction = UIAlertAction(title: "OK", style: .default)
+        okAction.setValue(UIColor.mainTitlesDark, forKey: "titleTextColor")
+        alert.addAction(okAction)
         present(alert, animated: true)
     }
 

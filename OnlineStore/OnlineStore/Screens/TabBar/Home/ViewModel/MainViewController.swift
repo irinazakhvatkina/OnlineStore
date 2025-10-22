@@ -88,6 +88,20 @@ class MainViewController: UIViewController, DeliveryAddressDelegate, UICollectio
         updateProductsCollectionViewHeight()
         NotificationCenter.default.addObserver(self, selector: #selector(cartUpdated), name: .cartUpdated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(currencyDidChange(_:)), name: .currencyDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(accountTypeDidChange), name: NSNotification.Name("AccountTypeDidChange"), object: nil)
+
+    }
+    @objc private func accountTypeDidChange() {
+        productsCollectionView.reloadData()
+        updateProductsCollectionViewHeight()
+        
+        contentStackView.setNeedsLayout()
+        contentStackView.layoutIfNeeded()
+        scrollView.setNeedsLayout()
+        scrollView.layoutIfNeeded()
+        
+        self.view.setNeedsLayout()
+        self.view.layoutIfNeeded()
     }
     
     override func viewWillAppear(_ animated: Bool) {

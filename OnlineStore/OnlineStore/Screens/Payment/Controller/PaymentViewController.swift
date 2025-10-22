@@ -1,10 +1,3 @@
-//
-//  PaymentViewController.swift
-//  OnlineStore
-//
-//  Created by Zaripov Anushervon  on 20/10/25.
-//
-
 import UIKit
 
 final class PaymentViewController: UIViewController {
@@ -17,7 +10,9 @@ final class PaymentViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .white
         title = "Payment method"
+        setupBackButton()
         setupTextFields()
         setupActions()
     }
@@ -34,6 +29,18 @@ final class PaymentViewController: UIViewController {
     private func setupActions() {
         mainView.returnConfirmButton().addTarget(self, action: #selector(confirmTapped), for: .touchUpInside)
       }
+    
+    private func setupBackButton() {
+        let backButton = UIButton(type: .system)
+        backButton.setImage(UIImage(systemName: "arrow.left"), for: .normal)
+        backButton.tintColor = .mainTitlesDark
+        backButton.addTarget(self, action: #selector(backTapped), for: .touchUpInside)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: backButton)
+    }
+    
+    @objc private func backTapped() {
+        navigationController?.popViewController(animated: true)
+    }
       
       // MARK: - Actions
       

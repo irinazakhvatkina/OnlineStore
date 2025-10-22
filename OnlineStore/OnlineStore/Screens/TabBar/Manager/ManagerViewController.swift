@@ -145,8 +145,11 @@ class ManagerViewController: UIViewController {
 
     // Заглушка для категорий
     @objc private func categoryActionPlaceholder() {
-        let alert = UIAlertController(title: "Заглушка", message: "Эта кнопка пока не реализована", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        let alert = UIAlertController(title: "Placeholder", message: "This button is not implemented yet", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default)
+        okAction.setValue(UIColor.black, forKey: "titleTextColor")
+        alert.addAction(okAction)
         present(alert, animated: true)
     }
+
 }

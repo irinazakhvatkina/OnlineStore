@@ -1,11 +1,5 @@
-//
-//  Untitled.swift
-//  OnlineStore
-//
-//  Created by Zarina Sadykova on 15.10.25.
-//
-
 import UIKit
+import SnapKit
 
 protocol AccountTypePopupDelegate: AnyObject {
     func didSelectAccountType(_ type: AccountType)

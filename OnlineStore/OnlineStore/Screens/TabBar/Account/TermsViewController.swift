@@ -1,11 +1,5 @@
-//
-//  TermsViewController.swift
-//  OnlineStore
-//
-//  Created by Zarina Sadykova on 15.10.25.
-//
-
 import UIKit
+import SnapKit
 import DesignPackage
 
 class TermsConditionsViewController: UIViewController {

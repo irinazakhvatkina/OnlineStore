@@ -1,12 +1,5 @@
-//
-//  AccountViewController.swift
-//  OnlineStore
-//
-//  Created by Administration  on 29/09/25.
-//
-
-// AccountViewController.swift
 import UIKit
+import SnapKit
 import DesignPackage
 
 class AccountViewController: UIViewController {

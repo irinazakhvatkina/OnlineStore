@@ -1,11 +1,3 @@
-//
-//  ConfirmedPaymentView.swift
-//  OnlineStore
-//
-//  Created by Zaripov Anushervon  on 20/10/25.
-//
-
-
 import UIKit
 import SnapKit
 

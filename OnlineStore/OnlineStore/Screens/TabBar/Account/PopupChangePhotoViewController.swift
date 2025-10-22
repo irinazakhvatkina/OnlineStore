@@ -1,10 +1,5 @@
-//
-//  PopupChangePhotoViewController.swift
-//  OnlineStore
-//
-//  Created by Zarina Sadykova on 17.10.25.
-//
 import UIKit
+import SnapKit
 
 protocol ChangePhotoPopupDelegate: AnyObject {
     func didSelectTakePhoto()

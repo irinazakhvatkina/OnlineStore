@@ -1,13 +1,7 @@
-//
-//  ConfirmedPaymentVC.swift
-//  OnlineStore
-//
-//  Created by Zaripov Anushervon  on 20/10/25.
-//
-
-
 import UIKit
 import SnapKit
+import DesignPackage
+
 final class ConfirmedPaymentVC: UIViewController {
 
     private let mainView = ConfirmedPaymentView()
@@ -74,7 +68,10 @@ final class ConfirmedPaymentVC: UIViewController {
     
     private func showAlert(_ title: String, _ message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        let okAction = UIAlertAction(title: "Ок", style: .default)
+        okAction.setValue(UIColor.mainTitlesDark, forKey: "titleTextColor")
+        alert.addAction(okAction)
         present(alert, animated: true)
     }
+
 }
