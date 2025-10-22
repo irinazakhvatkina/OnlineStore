@@ -35,15 +35,15 @@ class OnboardingViewController: UIViewController, UIScrollViewDelegate {
               let selectedDot = UIImage(named: "pageDotSelected") else {
             return
         }
-
+        
         for index in 0..<pageControl.numberOfPages {
             pageControl.setIndicatorImage(normalDot, forPage: index)
         }
-
+        
         let currentPage = pageControl.currentPage
         pageControl.setIndicatorImage(selectedDot, forPage: currentPage)
     }
-
+    
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let page = Int(round(scrollView.contentOffset.x / view.frame.width))
@@ -249,13 +249,15 @@ class OnboardingViewController: UIViewController, UIScrollViewDelegate {
             let offset = CGPoint(x: CGFloat(nextPage) * view.frame.width, y: 0)
             scrollView.setContentOffset(offset, animated: true)
         } else {
+            // Сохраняем факт завершения онбординга
             UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
             
-            let tabBarController = CustomTabBarController()
+            // Переход к LoginViewController
+            let loginVC = LoginViewController()
             
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let window = windowScene.windows.first {
-                window.rootViewController = tabBarController
+                window.rootViewController = loginVC
                 UIView.transition(with: window, duration: 0.4, options: .transitionCrossDissolve, animations: nil)
             }
         }

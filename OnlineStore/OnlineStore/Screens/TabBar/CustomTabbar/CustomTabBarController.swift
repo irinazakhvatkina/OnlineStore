@@ -64,7 +64,7 @@ class CustomTabBarController: UITabBarController {
     }
     
     private func setInitialTab() {
-        selectedIndex = (viewControllers?.count ?? 1) - 1
+        selectedIndex = 0
     }
     
     func setupTabs() {
